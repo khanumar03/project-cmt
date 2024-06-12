@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { RegisterSchema } from "@/schemas";
 import { getUserByEmail } from "@/data/user";
+import { error } from "console";
 
 export const register = async (values: z.infer<typeof RegisterSchema>) => {
   const validatedFields = RegisterSchema.safeParse(values);
@@ -14,7 +15,18 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     return { error: "Invalid fields!" };
   }
 
-  const { email, password, username } = validatedFields.data;
+  const {
+    email,
+    password,
+    c_password,
+    first_name,
+    last_name,
+    organization_name,
+  } = validatedFields.data;
+
+  if (password !== c_password) {
+    return { error: "Passwords do nat match" };
+  }
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const existingUser = await getUserByEmail(email);
@@ -25,9 +37,12 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
 
   await db.user.create({
     data: {
-      username,
+      // username,
       email,
       password: hashedPassword,
+      first_name,
+      last_name,
+      organization_name,
     },
   });
 

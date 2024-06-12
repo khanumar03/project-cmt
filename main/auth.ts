@@ -48,8 +48,9 @@ export const {
 
       if (!existingUser) return token;
 
-      token.name = existingUser.username;
+      // token.name = existingUser.username;
       token.email = existingUser.email;
+      token.first_name = existingUser.first_name;
 
       return token;
     },

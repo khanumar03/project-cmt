@@ -31,7 +31,11 @@ export const RegisterForm = () => {
     defaultValues: {
       email: "",
       password: "",
-      username: "",
+      c_password: "",
+      first_name: "",
+      last_name: "",
+      organization_name: "",
+      // username: "",
     },
   });
 
@@ -56,7 +60,7 @@ export const RegisterForm = () => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
-            <FormField
+            {/* <FormField
               control={form.control}
               name="username"
               render={({ field }) => (
@@ -72,7 +76,7 @@ export const RegisterForm = () => {
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
             <FormField
               control={form.control}
               name="email"
@@ -103,6 +107,78 @@ export const RegisterForm = () => {
                       disabled={isPending}
                       placeholder="******"
                       type="password"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="c_password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={isPending}
+                      placeholder="******"
+                      type="password"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="first_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>First Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={isPending}
+                      placeholder="First name"
+                      type="text"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="last_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={isPending}
+                      placeholder="Last name"
+                      type="text"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="organization_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Organization Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={isPending}
+                      placeholder="Organization name"
+                      type="text"
                     />
                   </FormControl>
                   <FormMessage />
