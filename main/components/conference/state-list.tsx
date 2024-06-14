@@ -19,10 +19,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-// import { getNames } from "country-list";
-import { Country, City, ICountry, ICity, IState } from "country-state-city";
+import { IState } from "country-state-city";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useCon } from "@/context/DataProvider";
 import { NextPage } from "next";
 
 type Props = {
@@ -33,21 +31,9 @@ export const StateList: NextPage<Props> = ({ data }) => {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
 
-  const { city, changeCity, changedata, conference } = useCon();
-
   React.useEffect(() => {
-    console.log(city);
-  }, [city, changeCity]);
-
-  React.useEffect(() => {
-    const data = {
-      name: conference["name"],
-      blog: conference["blog"],
-      country: conference["country"],
-      state: value,
-    };
-    changedata(data);
-  }, [value]);
+    setValue("");
+  }, [data]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -59,9 +45,7 @@ export const StateList: NextPage<Props> = ({ data }) => {
           aria-expanded={open}
           className="w-[275px] justify-between"
         >
-          {data && value
-            ? data.find((c) => c.name === value)?.name
-            : "Select State"}
+          {value ? value : "Select State"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>

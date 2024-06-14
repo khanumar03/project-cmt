@@ -14,8 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CountryList } from "@/components/conference/country-list";
 
-import { Country, City, ICountry } from "country-state-city";
-import { useCon } from "@/context/DataProvider";
+import { Country, City, ICountry, IState, State } from "country-state-city";
 import { useEffect, useState } from "react";
 import { StateList } from "@/components/conference/state-list";
 import { DatePicker } from "./date-picker";
@@ -24,23 +23,29 @@ import { DatePicker } from "./date-picker";
 
 export function CreateConference() {
   const [country, setCountry] = useState<Array<ICountry>>([]);
-  const { city, conference, changedata } = useCon();
-  //   const insertconf = useMutation(api.conference.createConference);
+  const [state, setState] = useState<Array<IState> | null>(null);
 
   useEffect(() => {
     setCountry(Country.getAllCountries());
-  }, [country]);
+  }, []);
 
-  useEffect(() => {
-    console.log(conference);
-  }, [conference]);
+  const handlestate = (st: string | null) => {
+    setState(st ? State.getStatesOfCountry(st) : null);
+  };
+
+  const handlestartdate = () => {};
+  const handleenddate = () => {};
+  const handleduedate = () => {};
 
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline">Create Conference</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent
+        onInteractOutside={(e) => e.preventDefault()}
+        className="min-w-20"
+      >
         <DialogHeader>
           <DialogTitle>Create Conference</DialogTitle>
         </DialogHeader>
@@ -49,49 +54,37 @@ export function CreateConference() {
             <Label htmlFor="name" className="text-right">
               Name
             </Label>
-            <Input
-              id="name"
-              className="col-span-3"
-              onChange={(event) => {
-                const data = {
-                  name: event.target.value,
-                  blog: "sdsdsdsdsds",
-                  country: conference["country"],
-                  state: conference["state"],
-                };
-                changedata(data);
-              }}
-            />
+            <Input id="name" className="col-span-3" onChange={(event) => {}} />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="username" className="text-right">
               Country
             </Label>
-            <CountryList data={country} />
+            <CountryList handlestate={handlestate} data={country} />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="username" className="text-right">
               State
             </Label>
-            <StateList data={city} />
+            <StateList data={state} />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="username" className="text-right">
               Start Date
             </Label>
-            <DatePicker />
+            <DatePicker handledata={handlestartdate} />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="username" className="text-right">
               End Date
             </Label>
-            <DatePicker />
+            <DatePicker handledata={handleenddate} />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="username" className="text-right">
               Paper Submission Due Date
             </Label>
-            <DatePicker />
+            <DatePicker handledata={handleduedate} />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="url" className="text-right">
@@ -101,33 +94,13 @@ export function CreateConference() {
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="subject" className="text-right">
-              Research/Subject Area
+              Add Domain
             </Label>
             <Input id="subject" type="text" className="col-span-3" />
           </div>
         </div>
         <DialogFooter>
-          <Button
-            type="submit"
-            onClick={async (event) => {
-              event.preventDefault();
-
-              if (
-                !conference["blog"] ||
-                !conference["country"] ||
-                !conference["name"] ||
-                !conference["state"]
-              )
-                return;
-
-              // const data = await insertconf({
-              //   blogsite: conference["blog"],
-              //   state: conference["state"],
-              //   country: conference["country"],
-              //   name: conference["name"],
-              // });
-            }}
-          >
+          <Button type="submit" onClick={async (event) => {}}>
             Save changes
           </Button>
         </DialogFooter>

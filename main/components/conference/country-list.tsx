@@ -24,34 +24,23 @@ import { Country, City, ICountry, ICity, State } from "country-state-city";
 import { ScrollArea } from "@/components/ui/scroll-area";
 // import { useCon } from "@/Context/DataProvider";
 import { NextPage } from "next";
-import { useCon } from "@/context/DataProvider";
 
 type Props = {
   data: Array<ICountry>;
+  handlestate: (st: string | null) => void;
 };
 
-export const CountryList: NextPage<Props> = ({ data }) => {
+export const CountryList: NextPage<Props> = ({ data, handlestate }) => {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState<ICountry | null>(null);
 
-  const { city, changeCity, changedata, conference } = useCon();
-
   React.useEffect(() => {
-    if (value) changeCity(State.getStatesOfCountry(value.isoCode));
-
-    if (value) {
-      const newdata = {
-        name: conference["name"],
-        blog: conference["blog"],
-        country: value?.name,
-        state: conference["country"],
-      };
-      changedata(newdata);
-    }
+    if (value) handlestate(value?.isoCode);
+    else handlestate(value);
   }, [value]);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover modal open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -59,9 +48,7 @@ export const CountryList: NextPage<Props> = ({ data }) => {
           aria-expanded={open}
           className="w-[275px] justify-between"
         >
-          {value
-            ? data.find((c) => c.name === value.name)?.name
-            : "Select Country"}
+          {value ? value.name : "Select Country"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
