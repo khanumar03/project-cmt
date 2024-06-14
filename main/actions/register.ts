@@ -15,18 +15,9 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     return { error: "Invalid fields!" };
   }
 
-  const {
-    email,
-    password,
-    c_password,
-    first_name,
-    last_name,
-    organization_name,
-  } = validatedFields.data;
+  const { email, password, first_name, last_name, organization_name } =
+    validatedFields.data;
 
-  if (password !== c_password) {
-    return { error: "Passwords do nat match" };
-  }
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const existingUser = await getUserByEmail(email);

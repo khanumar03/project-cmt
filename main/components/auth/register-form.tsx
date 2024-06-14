@@ -20,8 +20,10 @@ import { Button } from "@/components/ui/button";
 import { FormError } from "@/components/form-error";
 import { FormSuccess } from "@/components/form-success";
 import { register } from "@/actions/register";
+import { useRouter } from "next/navigation";
 
 export const RegisterForm = () => {
+  const router = useRouter();
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
@@ -31,7 +33,6 @@ export const RegisterForm = () => {
     defaultValues: {
       email: "",
       password: "",
-      c_password: "",
       first_name: "",
       last_name: "",
       organization_name: "",
@@ -47,6 +48,7 @@ export const RegisterForm = () => {
       register(values).then((data) => {
         setError(data.error);
         setSuccess(data.success);
+        router.replace("/login");
       });
     });
   };
@@ -101,24 +103,6 @@ export const RegisterForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      disabled={isPending}
-                      placeholder="******"
-                      type="password"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="c_password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
