@@ -14,12 +14,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CountryList } from "@/components/conference/country-list";
 
-import { Country, City, ICountry, IState, State } from "country-state-city";
+import { Country, ICountry, IState, State } from "country-state-city";
 import { useEffect, useState } from "react";
 import { StateList } from "@/components/conference/state-list";
 import { DatePicker } from "./date-picker";
-// import { useMutation } from "convex/react";
-// import { api } from "../../../convex/_generated/api";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ConferenceFormSchema } from "@/schemas";
 
 export function CreateConference() {
   const [country, setCountry] = useState<Array<ICountry>>([]);
@@ -32,6 +34,21 @@ export function CreateConference() {
   const handlestate = (st: string | null) => {
     setState(st ? State.getStatesOfCountry(st) : null);
   };
+
+  const form = useForm<z.infer<typeof ConferenceFormSchema>>({
+    resolver: zodResolver(ConferenceFormSchema),
+    defaultValues: {
+      name: "",
+      country: "",
+      confStartDate: new Date(),
+      confEndDate: new Date(),
+      paperSubmissionDueDate: new Date(),
+      submission: 0,
+      domain: [],
+      externalConfURL: "",
+      state: "",
+    },
+  });
 
   const handlestartdate = () => {};
   const handleenddate = () => {};

@@ -36,7 +36,6 @@ export const RegisterForm = () => {
       first_name: "",
       last_name: "",
       organization_name: "",
-      // username: "",
     },
   });
 
