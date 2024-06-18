@@ -24,8 +24,61 @@ model User {
   image             String?   @db.String
   accounts          Account[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  conferences UserConference[]
+  Paper       Paper[]
+  Review      Review[]
+}
+
+model Conference {
+  id                    String           @id @default(auto()) @map("_id") @db.ObjectId
+  name                  String           @db.String
+  location              String           @db.String
+  startDate             DateTime
+  endDate               DateTime
+  submissionDueDate     DateTime
+  externalConferenceURL String           @db.String
+  subjectArea           String           @db.String
+  // submissions 
+  // tracks
+  users                 UserConference[]
+  papers                Paper[]
+}
+
+model Paper {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  title        String     @db.String
+  abstract     String     @db.String
+  authorId     String     @db.String
+  author       User       @relation(fields: [authorId], references: [id])
+  conferenceId String     @db.ObjectId
+  conference   Conference @relation(fields: [conferenceId], references: [id])
+  reviews      Review[]
+}
+
+model Review {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  content    String @db.String
+  rating     Int
+  reviewerId String @db.String
+  reviewer   User   @relation(fields: [reviewerId], references: [id])
+  paperId    String @db.String
+  paper      Paper  @relation(fields: [paperId], references: [id])
+}
+
+model UserConference {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String     @db.ObjectId
+  user         User       @relation(fields: [userId], references: [id])
+  conferenceId String     @db.ObjectId
+  conference   Conference @relation(fields: [conferenceId], references: [id])
+}
+
+enum Role {
+  ADMIN
+  REVIEWER
+  AUTHOR
 }
 
 model Account {

@@ -38,3 +38,38 @@ export const RegisterSchema = z.object({
     message: "Minimum 6 characters required",
   }),
 });
+
+export const ConferenceFormSchema = z.object({
+  name: z.string().min(1, {
+    message: "Name is required",
+  }),
+  country: z.string().min(1, {
+    message: "Country is required",
+  }),
+  state: z.string().min(1, {
+    message: "State is required",
+  }),
+  confStartDate: z
+    .union([z.string(), z.date()])
+    .transform((str) => (typeof str === "string" ? new Date(str) : str)),
+  confEndDate: z
+    .union([z.string(), z.date()])
+    .transform((str) => (typeof str === "string" ? new Date(str) : str)),
+  paperSubmissionDueDate: z
+    .union([z.string(), z.date()])
+    .transform((str) => (typeof str === "string" ? new Date(str) : str)),
+  externalConfURL: z.string().min(1, {
+    message: "Url is required",
+  }),
+  domain: z.array(z.string()).min(1, {
+    message: "Minimum 1 Domain required",
+  }),
+  submission: z
+    .number()
+    .min(1, {
+      message: "Minimum 1 Submission required",
+    })
+    .max(20000, {
+      message: "Maximum 20000 submission are allowed",
+    }),
+});

@@ -2,109 +2,255 @@
 
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { CountryList } from "@/components/conference/country-list";
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
-import { Country, City, ICountry, IState, State } from "country-state-city";
-import { useEffect, useState } from "react";
-import { StateList } from "@/components/conference/state-list";
-import { DatePicker } from "./date-picker";
-// import { useMutation } from "convex/react";
-// import { api } from "../../../convex/_generated/api";
+import { FormError } from "@/components/form-error";
+import { FormSuccess } from "@/components/form-success";
+import { useState, useTransition } from "react";
+import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { ConferenceFormSchema } from "@/schemas";
 
 export function CreateConference() {
-  const [country, setCountry] = useState<Array<ICountry>>([]);
-  const [state, setState] = useState<Array<IState> | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | undefined>("");
+  const [success, setSuccess] = useState<string | undefined>("");
 
-  useEffect(() => {
-    setCountry(Country.getAllCountries());
-  }, []);
+  const form = useForm<z.infer<typeof ConferenceFormSchema>>({
+    resolver: zodResolver(ConferenceFormSchema),
+    defaultValues: {
+      name: "",
+      country: "",
+      state: "",
+      confStartDate: new Date(),
+      confEndDate: new Date(),
+      paperSubmissionDueDate: new Date(),
+      externalConfURL: "",
+      domain: [],
+      submission: 1,
+    },
+  });
+  const { control, handleSubmit, setValue, watch } = form;
+  const domainFields = watch("domain");
 
-  const handlestate = (st: string | null) => {
-    setState(st ? State.getStatesOfCountry(st) : null);
+  const addDomainField = () => {
+    setValue("domain", [...domainFields, ""]);
   };
 
-  const handlestartdate = () => {};
-  const handleenddate = () => {};
-  const handleduedate = () => {};
+  const removeDomainField = (index: number) => {
+    const updatedDomains = domainFields.filter((_, i) => i !== index);
+    setValue("domain", updatedDomains);
+  };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline">Create Conference</Button>
-      </DialogTrigger>
-      <DialogContent
-        onInteractOutside={(e) => e.preventDefault()}
-        className="min-w-20"
-      >
-        <DialogHeader>
-          <DialogTitle>Create Conference</DialogTitle>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              Name
-            </Label>
-            <Input id="name" className="col-span-3" onChange={(event) => {}} />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="username" className="text-right">
-              Country
-            </Label>
-            <CountryList handlestate={handlestate} data={country} />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="username" className="text-right">
-              State
-            </Label>
-            <StateList data={state} />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="username" className="text-right">
-              Start Date
-            </Label>
-            <DatePicker handledata={handlestartdate} />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="username" className="text-right">
-              End Date
-            </Label>
-            <DatePicker handledata={handleenddate} />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="username" className="text-right">
-              Paper Submission Due Date
-            </Label>
-            <DatePicker handledata={handleduedate} />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="url" className="text-right">
-              External URL
-            </Label>
-            <Input id="url" type="url" className="col-span-3" />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="subject" className="text-right">
-              Add Domain
-            </Label>
-            <Input id="subject" type="text" className="col-span-3" />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button type="submit" onClick={async (event) => {}}>
-            Save changes
+    <Form {...form}>
+      <form className="space-y-6">
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name of the Conference</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    disabled={isPending}
+                    // placeholder="john.doe@example.com"
+                    type="text"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="country"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Country</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    disabled={isPending}
+                    // placeholder="******"
+                    type="text"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="state"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>State</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    disabled={isPending}
+                    // placeholder="First name"
+                    type="text"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="confStartDate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Conference Start Date</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    disabled={isPending}
+                    type="date"
+                    value={
+                      field.value ? field.value.toISOString().split("T")[0] : ""
+                    }
+                    onChange={(e) => field.onChange(new Date(e.target.value))}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="confEndDate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Conference End Date</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    disabled={isPending}
+                    type="date"
+                    value={
+                      field.value ? field.value.toISOString().split("T")[0] : ""
+                    }
+                    onChange={(e) => field.onChange(new Date(e.target.value))}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="paperSubmissionDueDate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Paper Submission Due Date</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    disabled={isPending}
+                    type="date"
+                    value={
+                      field.value ? field.value.toISOString().split("T")[0] : ""
+                    }
+                    onChange={(e) => field.onChange(new Date(e.target.value))}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="externalConfURL"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>External Conference URL</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    disabled={isPending}
+                    // placeholder="Organization name"
+                    type="url"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="submission"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>How many submissions do you expect?</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    disabled={isPending}
+                    type="number"
+                    // min="1"
+                    // max="20000"
+                    value={field.value}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {domainFields.map((_, index) => (
+            <FormField
+              key={index}
+              control={control}
+              name={`domain.${index}`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Domain {index + 1}</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={isPending}
+                      type="text"
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value)}
+                    />
+                  </FormControl>
+                  <Button
+                    type="button"
+                    onClick={() => removeDomainField(index)}
+                  >
+                    Remove
+                  </Button>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ))}
+
+          <Button type="button" onClick={addDomainField}>
+            Add Domain
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+        <FormError message={error} />
+        <FormSuccess message={success} />
+        <Button disabled={isPending} type="submit" className="w-full">
+          Create Conference
+        </Button>
+      </form>
+    </Form>
   );
 }
