@@ -45,7 +45,7 @@ const country = Country.getAllCountries().map((country) => country.name);
 
 export const ConferenceFormSchema = z.object({
   name: z.string().min(1, {
-    message: "Name is required",
+    message: "name is required",
   }),
   country: z.enum(["", ...enumFromArray(country)]),
   state: z.string().min(1, {
@@ -55,17 +55,22 @@ export const ConferenceFormSchema = z.object({
   confEndDate: z.string().transform((str) => new Date(str)),
   paperSubmissionDueDate: z.string().transform((str) => new Date(str)),
   externalConfURL: z.string().min(1, {
-    message: "Url is required",
+    message: "url is required",
   }),
-  domain: z.array(z.string()).min(1, {
-    message: "Minimum 1 Domain required",
-  }),
+  domain: z
+    .array(z.string())
+    .min(1, {
+      message: "minimum 1 Domain required",
+    })
+    .max(10, {
+      message: "maximum 10 domain allowed",
+    }),
   submission: z
     .number()
     .min(1, {
-      message: "Minimum 1 Submission required",
+      message: "minimum 1 Submission required",
     })
     .max(20000, {
-      message: "Maximum 20000 submission are allowed",
+      message: "maximum 20000 submission are allowed",
     }),
 });

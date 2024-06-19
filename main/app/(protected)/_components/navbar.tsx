@@ -32,7 +32,7 @@ import { ExitIcon } from "@radix-ui/react-icons";
 export function Navbar() {
   const [position, setPosition] = React.useState("bottom");
   return (
-    <div className="w-full h-14 bg-black mt-0 fixed top-0 z-50 flex items-center justify-between px-10 py-2">
+    <div className="relative w-full h-14 bg-black mt-0   z-50 flex items-center justify-between px-10 py-2">
       <h1 className="text-white text-2xl">Conferences</h1>
       <div className="flex items-center space-x-4">
         <Input placeholder="Filter emails..." className="max-w-sm" />

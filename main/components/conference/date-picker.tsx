@@ -10,23 +10,35 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
+  PopoverAnchor,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Input } from "../ui/input";
 import { toast } from "react-hot-toast";
 
-export function DatePicker({ handledata }: { handledata: () => void }) {
-  const [date, setDate] = React.useState<Date | undefined>(new Date());
+export function DatePicker({
+  handledata,
+  from,
+  to,
+  isDisabled,
+}: {
+  handledata: React.Dispatch<React.SetStateAction<Date | undefined>>;
+  from?: undefined | Date;
+  to?: undefined | Date;
+  isDisabled: boolean;
+}) {
+  const [date, setDate] = React.useState<Date | undefined>();
   const [timeout, settimeout] = React.useState<NodeJS.Timeout | null>(null);
+  const [isOpen, setIsOpen] = React.useState<boolean>(false);
 
   const handleinput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
     if (timeout) clearTimeout(timeout);
     settimeout(
       setTimeout(() => {
         const regex = new RegExp(/^(19|20)[\d]{2,2}$/);
-        if (!regex.test(e.target.value) && e.target.value.length > 0) {
+        if (e.target.value.length <= 0) return;
+        if (!regex.test(e.target.value)) {
           toast.error(<p>Input Error</p>, {
             style: {
               width: 400,
@@ -39,15 +51,57 @@ export function DatePicker({ handledata }: { handledata: () => void }) {
             position: "top-center",
             icon: <TriangleAlert color="red" />,
           });
+          return;
         }
+        if (parseInt(e.target.value) < new Date().getFullYear()) {
+          toast.error(<p>invalid year</p>, {
+            style: {
+              width: 400,
+              height: 50,
+              display: "flex",
+              justifyContent: "left",
+              alignItems: "center",
+            },
+            duration: 1000,
+            position: "top-center",
+            icon: <TriangleAlert color="red" />,
+          });
+          return;
+        }
+        setIsOpen(false);
+        setDate(new Date(e.target.value));
       }, 1000)
     );
   };
 
+  React.useEffect(() => {
+    if (date) handledata(date);
+    else handledata(undefined);
+  }, [date]);
+
+  React.useEffect(() => {
+    const handleDocumentClick = (e: any) => {
+      if (!e.target.closest(".content")) {
+        if (isOpen) setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("click", handleDocumentClick);
+
+    return () => {
+      document.removeEventListener("click", handleDocumentClick);
+    };
+  }, [isOpen]);
+
   return (
-    <Popover>
-      <PopoverTrigger asChild>
+    <Popover open={isOpen}>
+      <PopoverAnchor asChild>
         <Button
+          disabled={isDisabled}
+          type="button"
+          onClick={() => {
+            setIsOpen(!isOpen);
+          }}
           variant={"outline"}
           className={cn(
             "w-[280px] justify-start text-left font-normal",
@@ -57,8 +111,8 @@ export function DatePicker({ handledata }: { handledata: () => void }) {
           <CalendarIcon className="mr-2 h-4 w-4" />
           {date ? format(date, "PPP") : <span>Pick a date</span>}
         </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-full p-0">
+      </PopoverAnchor>
+      <PopoverContent className="content w-full p-0">
         <Input
           id="name"
           placeholder={date && date.getFullYear().toString()}
@@ -67,9 +121,13 @@ export function DatePicker({ handledata }: { handledata: () => void }) {
         />
         <Calendar
           mode="single"
-          selected={date}
-          onSelect={setDate}
-          initialFocus
+          onSelect={(value) => {
+            setDate(value);
+            setIsOpen(false);
+          }}
+          fromDate={from}
+          toDate={to}
+          defaultMonth={date}
         />
       </PopoverContent>
     </Popover>
