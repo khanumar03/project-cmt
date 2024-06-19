@@ -13,6 +13,9 @@ const ClientPage = () => {
       <Link href={"/client/create-conference"}>
         <Button variant={"outline"}>create conference</Button>
       </Link>
+      <Link href={"/client/join-conference"}>
+        <Button variant={"outline"}>Join conference</Button>
+      </Link>
     </div>
   );
 };
