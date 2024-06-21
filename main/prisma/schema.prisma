@@ -20,25 +20,42 @@ enum Role {
 }
 
 model Conference {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String   @db.String
-  description String?  @db.String
-  startDate   DateTime @db.Timestamp
-  endDate     DateTime @db.Timestamp
+  id                     String       @id @default(auto()) @map("_id") @db.ObjectId
+  name                   String       @db.String
+  description            String?      @db.String
+  country                String       @db.String
+  state                  String       @db.String
+  startDate              DateTime     @db.Timestamp
+  endDate                DateTime     @db.Timestamp
+  paperSubmissionDueDate DateTime     @db.Timestamp
+  externalConfURL        String       @db.String
+  domain                 String[]     @db.String
+  submission             Submission[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  participantIDs String[] @db.ObjectId
-  participants   User[] @relation(fields: [participantIDs], references: [id])
-  roles UserRole[]
+  participantIDs String[]   @db.ObjectId
+  participants   User[]     @relation(fields: [participantIDs], references: [id])
+  roles          UserRole[]
+}
+
+model Submission {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  conferenceId String   @db.ObjectId
+  filePath     String   @db.String
+  fileType     String   @db.String
+  createdAt    DateTime @default(now()) @db.Timestamp
+  updatedAt    DateTime @updatedAt @db.Timestamp
+
+  conference Conference @relation(fields: [conferenceId], references: [id])
 }
 
 model UserRole {
-  id           String     @id @default(auto()) @map("_id") @db.ObjectId
-  userId       String     @db.ObjectId
-  conferenceId String     @db.ObjectId
-  role         Role       
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String @db.ObjectId
+  conferenceId String @db.ObjectId
+  role         Role
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -50,16 +67,16 @@ model UserRole {
 }
 
 model User {
-  id                String    @id @default(auto()) @map("_id") @db.ObjectId
-  email             String?   @unique @db.String
-  password          String?   @db.String
-  first_name        String?   @db.String
-  last_name         String?   @db.String
-  organization_name String?   @db.String
-  emailVerified     DateTime? @db.Timestamp
-  image             String?   @db.String
+  id                String       @id @default(auto()) @map("_id") @db.ObjectId
+  email             String?      @unique @db.String
+  password          String?      @db.String
+  first_name        String?      @db.String
+  last_name         String?      @db.String
+  organization_name String?      @db.String
+  emailVerified     DateTime?    @db.Timestamp
+  image             String?      @db.String
   accounts          Account[]
-  conferenceIDs     String[]  @db.ObjectId
+  conferenceIDs     String[]     @db.ObjectId
   conferences       Conference[] @relation(fields: [conferenceIDs], references: [id])
   roles             UserRole[]
 
