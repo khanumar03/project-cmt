@@ -34,8 +34,6 @@ export function CreateConference() {
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [submissionDue, setSubmissionDue] = useState<Date | undefined>();
 
-  console.log(startDate);
-
   useEffect(() => {
     setCountry(Country.getAllCountries());
   }, []);
