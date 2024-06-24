@@ -22,8 +22,11 @@ import { DatePicker } from "./date-picker";
 import { CountryList } from "./country-list";
 import { Country, ICountry, IState, State } from "country-state-city";
 import { StateList } from "./state-list";
+import { conference } from "@/actions/create-conference";
+import { useRouter } from "next/navigation";
 
 export function CreateConference() {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
@@ -77,173 +80,180 @@ export function CreateConference() {
   const onSubmit = (values: z.infer<typeof ConferenceFormSchema>) => {
     setError("");
     setSuccess("");
+
+    startTransition(() => {
+      conference(values).then((data) => {
+        setError(data.error);
+        setSuccess(data.success);
+        router.replace("/client");
+      });
+    });
   };
 
   return (
     <Form {...form}>
       <form
-        className="flex flex-col max-w-[350px] space-y-6"
-        onSubmit={handleSubmit(onSubmit)}
+        className="max-w-[700px] mx-auto space-y-6"
+        onSubmit={form.handleSubmit(onSubmit)}
       >
-        <div className="space-y-4">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Name of the Conference</FormLabel>
-                <FormControl>
-                  <Input {...field} disabled={isPending} type="text" />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name="country"
-            render={({ field }) => (
-              <FormItem>
-                <FormItem className="flex justify-between items-center">
+        <div className="flex flex-col lg:flex-row lg:space-x-6 space-y-6 lg:space-y-0">
+          <div className="flex-1 space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Name of the Conference</FormLabel>
+                  <FormControl>
+                    <Input {...field} disabled={isPending} type="text" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="confStartDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Conference Start Date</FormLabel>
+                  <FormControl>
+                    <DatePicker
+                      isDisabled={false}
+                      from={new Date()}
+                      handledata={setStartDate}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="paperSubmissionDueDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Paper Submission Due Date</FormLabel>
+                  <FormControl>
+                    <DatePicker
+                      isDisabled={endDate ? false : true}
+                      from={startDate}
+                      to={endDate}
+                      handledata={setSubmissionDue}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="submission"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>How many submissions do you expect?</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={isPending}
+                      type="number"
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="flex-1 space-y-4">
+            <FormField
+              control={control}
+              name="country"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
                   <FormLabel>Country</FormLabel>
                   <FormControl>
                     <CountryList data={country} handlestate={handlestate} />
                   </FormControl>
                 </FormItem>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name="state"
-            render={({ field }) => (
-              <FormItem>
-                <FormItem className="flex justify-between items-center">
-                  <FormLabel>State</FormLabel>
-                  <FormControl>
-                    <StateList data={state} />
-                  </FormControl>
+              )}
+            />
+            <FormField
+              control={control}
+              name="state"
+              render={({ field }) => (
+                <FormItem>
+                  <FormItem className="flex flex-col">
+                    <FormLabel>State</FormLabel>
+                    <FormControl>
+                      <StateList data={state} />
+                    </FormControl>
+                  </FormItem>
                 </FormItem>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name="confStartDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Conference Start Date</FormLabel>
-                <FormControl>
-                  <DatePicker
-                    isDisabled={false}
-                    from={new Date()}
-                    handledata={setStartDate}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name="confEndDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Conference End Date</FormLabel>
-                <FormControl>
-                  <DatePicker
-                    isDisabled={startDate ? false : true}
-                    from={startDate}
-                    handledata={setEndDate}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name="paperSubmissionDueDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Paper Submission Due Date</FormLabel>
-                <FormControl>
-                  <DatePicker
-                    isDisabled={endDate ? false : true}
-                    from={startDate}
-                    to={endDate}
-                    handledata={setSubmissionDue}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name="externalConfURL"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>External Conference URL</FormLabel>
-                <FormControl>
-                  <Input {...field} disabled={isPending} type="url" />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={control}
-            name="submission"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>How many submissions do you expect?</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    disabled={isPending}
-                    type="number"
-                    // min="1"
-                    // max="20000"
-                    value={field.value}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={control}
-            name="domain"
-            render={({ field }) => (
-              <FormItem className="flex flex-col ">
-                <FormLabel>Domain</FormLabel>
-                <FormItem className="flex space-x-2 -space-y-0.2 justify-between items-center">
+              )}
+            />
+            <FormField
+              control={control}
+              name="confEndDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Conference End Date</FormLabel>
                   <FormControl>
-                    <Input
-                      onChange={(e) => setDomainInput(e.target.value)}
-                      disabled={isPending}
-                      type="text"
-                      value={domainInput}
+                    <DatePicker
+                      isDisabled={startDate ? false : true}
+                      from={startDate}
+                      handledata={setEndDate}
                     />
                   </FormControl>
-                  <Button type="button" onClick={addDomain}>
-                    add Domain
-                  </Button>
                 </FormItem>
-                {domain &&
-                  domain.map((domain: string, idx: number) => (
-                    <Button
-                      onClick={() => deleteDomain(idx)}
-                      type="button"
-                      key={idx}
-                      variant={"outline"}
-                    >
-                      {domain}
+              )}
+            />
+            <FormField
+              control={control}
+              name="externalConfURL"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>External Conference URL</FormLabel>
+                  <FormControl>
+                    <Input {...field} disabled={isPending} type="url" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="domain"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Domain</FormLabel>
+                  <FormItem className="flex space-x-2 justify-between items-center">
+                    <FormControl>
+                      <Input
+                        onChange={(e) => setDomainInput(e.target.value)}
+                        disabled={isPending}
+                        type="text"
+                        value={domainInput}
+                      />
+                    </FormControl>
+                    <Button type="button" onClick={addDomain}>
+                      add Domain
                     </Button>
-                  ))}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  </FormItem>
+                  {domain &&
+                    domain.map((domain: string, idx: number) => (
+                      <Button
+                        onClick={() => deleteDomain(idx)}
+                        type="button"
+                        key={idx}
+                        variant={"outline"}
+                      >
+                        {domain}
+                      </Button>
+                    ))}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
         <FormError message={error} />
         <FormSuccess message={success} />
