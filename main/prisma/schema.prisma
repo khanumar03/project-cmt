@@ -28,9 +28,9 @@ model Conference {
   startDate              DateTime     @db.Timestamp
   endDate                DateTime     @db.Timestamp
   paperSubmissionDueDate DateTime     @db.Timestamp
-  externalConfURL        String       @db.String
+  externalConfURL        String?       @db.String
   domain                 String[]     @db.String
-  submission             Submission[]
+  submission             Submission[] 
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

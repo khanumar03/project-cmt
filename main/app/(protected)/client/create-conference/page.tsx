@@ -1,3 +1,5 @@
+"use client";
+
 import { CreateConference } from "@/components/conference/create-conference";
 
 const page = () => {

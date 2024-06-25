@@ -37,6 +37,9 @@ export function CreateConference() {
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [submissionDue, setSubmissionDue] = useState<Date | undefined>();
 
+  const [countryValue, setCountryValue] = useState<string | undefined>();
+  const [stateValue, setStateValue] = useState<string | undefined>();
+
   useEffect(() => {
     setCountry(Country.getAllCountries());
   }, []);
@@ -49,8 +52,8 @@ export function CreateConference() {
     resolver: zodResolver(ConferenceFormSchema),
     defaultValues: {
       name: "",
-      country: undefined,
-      state: undefined,
+      country: countryValue,
+      state: stateValue,
       confStartDate: undefined,
       confEndDate: undefined,
       paperSubmissionDueDate: undefined,
@@ -73,7 +76,25 @@ export function CreateConference() {
     setValue("domain", updateDomain);
   };
 
-  const handleCountryState = () => {};
+  useEffect(() => {
+    setValue("country", countryValue);
+  }, [countryValue]);
+
+  useEffect(() => {
+    setValue("state", stateValue);
+  }, [stateValue]);
+
+  useEffect(() => {
+    setValue("confStartDate", startDate?.toString());
+  }, [startDate]);
+
+  useEffect(() => {
+    setValue("confEndDate", endDate?.toString());
+  }, [endDate]);
+
+  useEffect(() => {
+    setValue("paperSubmissionDueDate", submissionDue?.toString());
+  }, [submissionDue]);
 
   const onSubmit = (values: z.infer<typeof ConferenceFormSchema>) => {
     setError("");
@@ -81,9 +102,12 @@ export function CreateConference() {
 
     startTransition(() => {
       conference(values).then((data) => {
-        setError(data.error);
-        setSuccess(data.success);
-        router.replace("/client");
+        console.log(values);
+
+        console.log(data);
+
+        // setSuccess(data.success);
+        // router.replace("/client");
       });
     });
   };
@@ -92,7 +116,7 @@ export function CreateConference() {
     <Form {...form}>
       <form
         className="max-w-[700px] mx-auto space-y-6"
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit)}
       >
         <div className="flex flex-col lg:flex-row lg:space-x-6 space-y-6 lg:space-y-0">
           <div className="flex-1 space-y-4">
@@ -119,6 +143,22 @@ export function CreateConference() {
                       isDisabled={false}
                       from={new Date()}
                       handledata={setStartDate}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="confEndDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Conference End Date</FormLabel>
+                  <FormControl>
+                    <DatePicker
+                      isDisabled={startDate ? false : true}
+                      from={startDate}
+                      handledata={setEndDate}
                     />
                   </FormControl>
                 </FormItem>
@@ -170,7 +210,11 @@ export function CreateConference() {
                 <FormItem className="flex flex-col">
                   <FormLabel>Country</FormLabel>
                   <FormControl>
-                    <CountryList data={country} handlestate={handlestate} />
+                    <CountryList
+                      setCountryValue={setCountryValue}
+                      data={country}
+                      handlestate={handlestate}
+                    />
                   </FormControl>
                 </FormItem>
               )}
@@ -183,25 +227,9 @@ export function CreateConference() {
                   <FormItem className="flex flex-col">
                     <FormLabel>State</FormLabel>
                     <FormControl>
-                      <StateList data={state} />
+                      <StateList setStateValue={setStateValue} data={state} />
                     </FormControl>
                   </FormItem>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="confEndDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Conference End Date</FormLabel>
-                  <FormControl>
-                    <DatePicker
-                      isDisabled={startDate ? false : true}
-                      from={startDate}
-                      handledata={setEndDate}
-                    />
-                  </FormControl>
                 </FormItem>
               )}
             />

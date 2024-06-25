@@ -28,15 +28,25 @@ import { NextPage } from "next";
 type Props = {
   data: Array<ICountry>;
   handlestate: (st: string | null) => void;
+  setCountryValue: React.Dispatch<React.SetStateAction<string | undefined>>;
 };
 
-export const CountryList: NextPage<Props> = ({ data, handlestate }) => {
+export const CountryList: NextPage<Props> = ({
+  data,
+  handlestate,
+  setCountryValue,
+}) => {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState<ICountry | null>(null);
 
   React.useEffect(() => {
-    if (value) handlestate(value?.isoCode);
-    else handlestate(value);
+    if (value) {
+      handlestate(value?.isoCode);
+      setCountryValue(value.name);
+    } else {
+      handlestate(value);
+      setCountryValue(undefined);
+    }
   }, [value]);
 
   return (

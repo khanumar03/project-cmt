@@ -10,6 +10,8 @@ export const conference = async (
 ) => {
   const validatedFields = ConferenceFormSchema.safeParse(values);
 
+  console.log(values);
+
   if (!validatedFields.success) {
     return { error: "Invalid fields!" };
   }
@@ -31,12 +33,11 @@ export const conference = async (
       name,
       country,
       state,
-      startDate: confStartDate,
-      endDate: confEndDate,
-      paperSubmissionDueDate,
+      startDate: new Date(confStartDate),
+      endDate: new Date(confEndDate),
+      paperSubmissionDueDate: new Date(paperSubmissionDueDate),
       externalConfURL,
       domain,
-      //   submission,
     },
   });
 
