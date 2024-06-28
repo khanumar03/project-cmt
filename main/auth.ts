@@ -6,6 +6,8 @@ import authConfig from "@/auth.config";
 import { getUserById } from "@/data/user";
 import { getTwoFactorConfirmationByUserId } from "@/data/two-factor-confirmation";
 import { getAccountByUserId } from "./data/account";
+import { Role } from "@prisma/client";
+import { updateRole } from "./actions/update-curr-user-role";
 
 export const {
   handlers: { GET, POST },
@@ -30,20 +32,19 @@ export const {
       }
 
       if (session.user) {
-        session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
-      }
-
-      if (session.user) {
+        session.user.role = token.role as Role;
         session.user.name = token.name;
         session.user.email = token.email;
-        session.user.isOAuth = token.isOAuth as boolean;
       }
 
       return session;
     },
-    async jwt({ token }) {
+    async jwt({ token, trigger, session }) {
       if (!token.sub) return token;
 
+      if (trigger == "update") {
+        await updateRole(token.sub, session.role);
+      }
       const existingUser = await getUserById(token.sub);
 
       if (!existingUser) return token;
@@ -51,6 +52,7 @@ export const {
       // token.name = existingUser.username;
       token.email = existingUser.email;
       token.first_name = existingUser.first_name;
+      token.role = existingUser.role;
 
       return token;
     },

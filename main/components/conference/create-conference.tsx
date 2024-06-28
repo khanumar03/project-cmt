@@ -24,6 +24,14 @@ import { Country, ICountry, IState, State } from "country-state-city";
 import { StateList } from "./state-list";
 import { conference } from "@/actions/create-conference";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import { CircleCheckBigIcon, Trash2Icon } from "lucide-react";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "../ui/hover-card";
 
 export function CreateConference() {
   const router = useRouter();
@@ -36,6 +44,7 @@ export function CreateConference() {
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [submissionDue, setSubmissionDue] = useState<Date | undefined>();
+  const user = useCurrentUser();
 
   const [countryValue, setCountryValue] = useState<string | undefined>();
   const [stateValue, setStateValue] = useState<string | undefined>();
@@ -101,14 +110,20 @@ export function CreateConference() {
     setSuccess("");
 
     startTransition(() => {
-      conference(values).then((data) => {
-        console.log(values);
-
-        console.log(data);
-
-        // setSuccess(data.success);
-        // router.replace("/client");
-      });
+      if (user) {
+        conference(values, user.id).then((data) => {
+          if (data.success) {
+            toast.success("Conference created successfully", {
+              duration: 2000,
+              position: "top-center",
+              icon: <CircleCheckBigIcon color="green" size={25} />,
+            });
+            router.replace("/client");
+          } else {
+            setError(data.error);
+          }
+        });
+      }
     });
   };
 
@@ -264,17 +279,32 @@ export function CreateConference() {
                       add Domain
                     </Button>
                   </FormItem>
-                  {domain &&
-                    domain.map((domain: string, idx: number) => (
-                      <Button
-                        onClick={() => deleteDomain(idx)}
-                        type="button"
-                        key={idx}
-                        variant={"outline"}
-                      >
-                        {domain}
-                      </Button>
-                    ))}
+                  <ul className="flex flex-col space-y-1">
+                    {domain &&
+                      domain.map((domain: string, idx: number) => (
+                        <li
+                          key={idx}
+                          className="w-full flex justify-between space-x-2 truncate items-center bg-white"
+                        >
+                          <HoverCard>
+                            <HoverCardTrigger className="max-w-72 truncate ...">
+                              {domain}
+                            </HoverCardTrigger>
+                            <HoverCardContent className="w-fit">
+                              {domain}
+                            </HoverCardContent>
+                          </HoverCard>
+                          <Button
+                            variant={"outline"}
+                            size={"sm"}
+                            onClick={() => deleteDomain(idx)}
+                            type="button"
+                          >
+                            <Trash2Icon size={20} />
+                          </Button>
+                        </li>
+                      ))}
+                  </ul>
                   <FormMessage />
                 </FormItem>
               )}

@@ -28,9 +28,11 @@ model Conference {
   startDate              DateTime     @db.Timestamp
   endDate                DateTime     @db.Timestamp
   paperSubmissionDueDate DateTime     @db.Timestamp
-  externalConfURL        String?       @db.String
+  externalConfURL        String?      @db.String
   domain                 String[]     @db.String
-  submission             Submission[] 
+  nos                    Int          @db.Int
+  submission             Submission[]
+  createdBy               String  @db.ObjectId 
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -45,17 +47,20 @@ model Submission {
   conferenceId String   @db.ObjectId
   filePath     String   @db.String
   fileType     String   @db.String
+  fromDomain   String   @db.String
   createdAt    DateTime @default(now()) @db.Timestamp
   updatedAt    DateTime @updatedAt @db.Timestamp
 
   conference Conference @relation(fields: [conferenceId], references: [id])
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdById String   @db.ObjectId
 }
 
 model UserRole {
   id           String @id @default(auto()) @map("_id") @db.ObjectId
   userId       String @db.ObjectId
   conferenceId String @db.ObjectId
-  role         Role
+  role         Role[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -63,7 +68,7 @@ model UserRole {
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   conference Conference @relation(fields: [conferenceId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, conferenceId, role])
+  @@unique([userId, conferenceId])
 }
 
 model User {
@@ -75,10 +80,12 @@ model User {
   organization_name String?      @db.String
   emailVerified     DateTime?    @db.Timestamp
   image             String?      @db.String
+  role              Role         @default(AUTHOR)
   accounts          Account[]
   conferenceIDs     String[]     @db.ObjectId
   conferences       Conference[] @relation(fields: [conferenceIDs], references: [id])
   roles             UserRole[]
+  submissions       Submission[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
