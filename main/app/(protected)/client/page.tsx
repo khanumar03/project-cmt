@@ -1,6 +1,6 @@
 "use client";
 
-import { getConference } from "@/actions/get-conference";
+import { getAllConference } from "@/actions/get-All-conference";
 import ConferenceCard from "@/components/conference/card-conf";
 import { Button } from "@/components/ui/button";
 import { UserInfo } from "@/components/user-info";
@@ -20,7 +20,7 @@ const ClientPage = () => {
   useEffect(() => {
     if (user)
       startTransition(() => {
-        getConference(user.id, user.role).then((data) => {
+        getAllConference(user.id, user.role).then((data) => {
           setConferences(data);
         });
       });
