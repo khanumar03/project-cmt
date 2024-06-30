@@ -1,25 +1,14 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { Role } from "@prisma/client";
 
-export const getConference = async (id: string, role: Role) => {
-  const data = await db.conference.findMany({
+export const getConference = async (id: string) => {
+  const conference = await db.conference.findFirst({
     where: {
-      participants: {
-        some: {
-          id,
-        },
-      },
-      roles: {
-        some: {
-          role: {
-            has: role,
-          },
-        },
-      },
+      id: id,
     },
   });
 
-  return data;
+  if (conference) return { data: conference };
+  return { data: null };
 };

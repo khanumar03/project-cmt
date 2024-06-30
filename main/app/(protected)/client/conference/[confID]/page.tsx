@@ -1,10 +1,22 @@
 "use client";
 
+import { getConference } from "@/actions/get-conference";
+import { Warning } from "@/components/_components/alert";
 import { columns, Submissions } from "@/components/conference/table/columns";
 import { DataTable } from "@/components/conference/table/data-table";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Conference } from "@prisma/client";
 import { addDays } from "date-fns";
 import { useParams, useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { startTransition, useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
 
 const data = [
@@ -115,7 +127,10 @@ const Page = () => {
     to: undefined,
   });
 
+  const [currConference, setCurrConference] = useState<Conference | null>(null);
+
   const [filterdata, setFilterData] = useState<Array<any>>(data);
+  const [currDomain, setCurrDomain] = useState<string>();
 
   useEffect(() => {
     if (date && date.from != undefined && date.to != undefined) {
@@ -126,13 +141,49 @@ const Page = () => {
       setFilterData(new_data);
     }
   }, [date]);
+
+  useEffect(() => {
+    startTransition(() => {
+      getConference(confID as string).then((conference) => {
+        setCurrConference(conference.data);
+      });
+    });
+  }, [confID]);
+
   return (
-    <div className="container mx-auto py-10">
-      <DataTable
-        handledate={{ date, setDate }}
-        columns={columns}
-        data={filterdata}
-      />
+    <div className="container mx-auto space-y-2">
+      <div className="w-full">
+        <Select onValueChange={setCurrDomain}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="select domain" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {currConference &&
+                currConference.domain.map((domain, idx) => (
+                  <SelectItem key={idx} value={domain}>
+                    {domain}
+                  </SelectItem>
+                ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="w-full flex justify-center items-center">
+        {currDomain ? (
+          <DataTable
+            handledate={{ date, setDate }}
+            columns={columns}
+            data={filterdata}
+          />
+        ) : (
+          <Warning
+            className={"max-w-72 mt-10"}
+            title="No domain selected!"
+            description="select domain to work"
+          />
+        )}
+      </div>
     </div>
   );
 };

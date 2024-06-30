@@ -56,7 +56,7 @@ export function DataTable({ columns, data, handledate }: any) {
   });
 
   return (
-    <div>
+    <div className="w-full h-full">
       <div className="flex items-center py-4">
         <DateRangePickerEnhanced
           handledata={handledate}

@@ -25,12 +25,12 @@ export const ConferenceCard = ({ className, data, ...props }: CardProps) => {
         <CardTitle>{data.name}</CardTitle>
         <CardDescription>{`${data.country}, ${data.state}`}</CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-2">
+      <CardContent className="grid">
         <span>Start date: {new Date(data.startDate).toDateString()}</span>
         <span>End date: {new Date(data.endDate).toDateString()}</span>
       </CardContent>
       <CardFooter>
-        <Link href={`/conference/${data.id}`} className="w-full">
+        <Link href={`/client/conference/${data.id}`} className="w-full">
           <Button className="w-full">
             <FilePenLine className="mr-2 h-4 w-4" /> Edit
           </Button>
