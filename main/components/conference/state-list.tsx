@@ -25,11 +25,18 @@ import { NextPage } from "next";
 
 type Props = {
   data: Array<IState> | null;
+  setStateValue: React.Dispatch<React.SetStateAction<string | undefined>>;
 };
 
-export const StateList: NextPage<Props> = ({ data }) => {
+export const StateList: NextPage<Props> = ({ data, setStateValue }) => {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
+
+  React.useEffect(() => {
+    if (value) {
+      setStateValue(value);
+    } else setStateValue(undefined);
+  }, [value]);
 
   React.useEffect(() => {
     setValue("");

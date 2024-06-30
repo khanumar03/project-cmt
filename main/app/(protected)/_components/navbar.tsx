@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { startTransition, useCallback, useEffect } from "react";
 // import { Button } from "./button";
 // import { HeaderDropDown } from "./header-dropdown";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import {
   Lock,
   CircleUserRound,
   Link,
+  TriangleAlert,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -28,34 +29,67 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { ExitIcon } from "@radix-ui/react-icons";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { useCurrentRole } from "@/hooks/use-current-role";
+import { Role } from "@prisma/client";
+import { updateRole } from "@/actions/update-curr-user-role";
+import toast from "react-hot-toast";
+import { useSession } from "next-auth/react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export function Navbar() {
-  const [position, setPosition] = React.useState("bottom");
+  const user = useCurrentUser();
+  const session = useSession();
+  const [currRole, setCurrRole] = React.useState<Role | null>(null);
+
+  useEffect(() => {
+    if (user) setCurrRole(user.role);
+  }, [user]);
+
+  useEffect(() => {
+    if (user && currRole != user.role)
+      startTransition(() => {
+        session.update({ role: currRole }).then((session) => {
+          if (!session) {
+            toast.success("something went wrong", {
+              duration: 2000,
+              position: "top-center",
+              icon: <TriangleAlert color="red" size={25} />,
+            });
+          }
+        });
+      });
+    console.log(currRole);
+  }, [currRole]);
   return (
     <div className="relative w-full h-14 bg-black mt-0   z-50 flex items-center justify-between px-10 py-2">
       <h1 className="text-white text-2xl">Conferences</h1>
       <div className="flex items-center space-x-4">
-        <Input placeholder="Filter emails..." className="max-w-sm" />
+        <Input placeholder="" className="max-w-sm" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline">Select your Role</Button>
+            <Button variant="outline">{currRole}</Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56">
             <DropdownMenuRadioGroup
-              value={position}
-              onValueChange={setPosition}
+              value={currRole || undefined}
+              onValueChange={(value) =>
+                currRole != (value as Role) && setCurrRole(value as Role)
+              }
             >
-              <DropdownMenuRadioItem value="top">Author</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="bottom">
-                Chair Man
+              <DropdownMenuRadioItem value={Role.CHAIR}>
+                Chair
               </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="right">
+              <DropdownMenuRadioItem value={Role.AUTHOR}>
+                Author
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value={Role.REVIEWER}>
                 Reviewer
               </DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>
-        <DropdownMenu>
+        {/* <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline">Name of the Selected Conference</Button>
           </DropdownMenuTrigger>
@@ -73,7 +107,7 @@ export function Navbar() {
               <DropdownMenuRadioItem value="right">Third</DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
-        </DropdownMenu>
+        </DropdownMenu> */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="w-48">

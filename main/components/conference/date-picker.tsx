@@ -47,9 +47,9 @@ export function DatePicker({
               justifyContent: "left",
               alignItems: "center",
             },
-            duration: 1000,
+            duration: 2000,
             position: "top-center",
-            icon: <TriangleAlert color="red" />,
+            icon: <TriangleAlert color="red" size={50} />,
           });
           return;
         }
@@ -62,14 +62,54 @@ export function DatePicker({
               justifyContent: "left",
               alignItems: "center",
             },
-            duration: 1000,
+            duration: 2000,
             position: "top-center",
-            icon: <TriangleAlert color="red" />,
+            icon: <TriangleAlert color="red" size={50} />,
           });
           return;
         }
-        setIsOpen(false);
-        setDate(new Date(e.target.value));
+        if (from && to) {
+          const selectedyear = new Date(
+            `${e.target.value}-${(from?.getMonth() + 1).toString()}-${new Date()
+              .getDate()
+              .toString()}`
+          );
+          if (
+            selectedyear.getTime() < from.getTime() ||
+            selectedyear.getTime() > to.getTime()
+          ) {
+            toast.error(
+              <p className="">
+                Due Date should be in the range, start and end of conference
+                Date
+              </p>,
+              {
+                style: {
+                  width: 400,
+                  height: 70,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                },
+                duration: 2000,
+                position: "top-center",
+                icon: <TriangleAlert color="red" size={50} />,
+              }
+            );
+            return;
+          }
+          setIsOpen(false);
+          setDate(
+            new Date(
+              `${e.target.value}-${(
+                from?.getMonth() + 1
+              ).toString()}-${new Date().getDate().toString()}`
+            )
+          );
+        } else {
+          setIsOpen(false);
+          setDate(new Date(`${e.target.value}`));
+        }
       }, 1000)
     );
   };

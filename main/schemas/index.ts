@@ -41,22 +41,20 @@ export const RegisterSchema = z.object({
   }),
 });
 
-const country = Country.getAllCountries().map((country) => country.name);
-
 export const ConferenceFormSchema = z.object({
   name: z.string().min(1, {
     message: "name is required",
   }),
-  country: z.enum(["", ...enumFromArray(country)]),
+  country: z.string().min(1, {
+    message: "country is required",
+  }),
   state: z.string().min(1, {
     message: "state is required",
   }),
-  confStartDate: z.string().transform((str) => new Date(str)),
-  confEndDate: z.string().transform((str) => new Date(str)),
-  paperSubmissionDueDate: z.string().transform((str) => new Date(str)),
-  externalConfURL: z.string().min(1, {
-    message: "url is required",
-  }),
+  confStartDate: z.string(),
+  confEndDate: z.string(),
+  paperSubmissionDueDate: z.string(),
+  externalConfURL: z.string().url().optional().or(z.literal("")),
   domain: z
     .array(z.string())
     .min(1, {
