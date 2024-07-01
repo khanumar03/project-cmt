@@ -4,6 +4,7 @@ import { getConference } from "@/actions/get-conference";
 import { Warning } from "@/components/_components/alert";
 import { columns, Submissions } from "@/components/conference/table/columns";
 import { DataTable } from "@/components/conference/table/data-table";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -152,7 +153,7 @@ const Page = () => {
 
   return (
     <div className="container mx-auto space-y-2">
-      <div className="w-full">
+      <div className="w-full flex space-x-2">
         <Select onValueChange={setCurrDomain}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="select domain" />
@@ -168,6 +169,11 @@ const Page = () => {
             </SelectGroup>
           </SelectContent>
         </Select>
+        {currDomain && (
+          <Button variant={"outline"} type="button">
+            Create Submission
+          </Button>
+        )}
       </div>
       <div className="w-full flex justify-center items-center">
         {currDomain ? (
