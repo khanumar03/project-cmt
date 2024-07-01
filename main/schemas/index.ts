@@ -1,6 +1,7 @@
 import * as z from "zod";
 import { Country, ICountry, IState, State } from "country-state-city";
 import { enumFromArray } from "@/lib/utils";
+import validator from "validator";
 
 export const NewPasswordSchema = z.object({
   password: z.string().min(6, {
@@ -71,4 +72,25 @@ export const ConferenceFormSchema = z.object({
     .max(20000, {
       message: "maximum 20000 submission are allowed",
     }),
+});
+
+export const SubmissionFormSchema = z.object({
+  title: z.string().min(1, {
+    message: "Title is required",
+  }),
+  abstract: z.string().min(1, {
+    message: "Abstract is required",
+  }),
+  email: z.array(z.any()).min(1, {
+    message: "Email is required",
+  }),
+  contact: z.string().refine(validator.isMobilePhone),
+  country: z.string().min(1, {
+    message: "country is required",
+  }),
+  state: z.string().min(1, {
+    message: "state is required",
+  }),
+  submission: z.optional(z.array(z.any())),
+  comment: z.optional(z.string()),
 });
