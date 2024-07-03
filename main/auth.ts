@@ -49,7 +49,7 @@ export const {
       }
       const existingUser = await getUserById(token.sub);
 
-      if (!existingUser) return token;
+      if (!existingUser) return null;
 
       // token.name = existingUser.username;
       token.email = existingUser.email;
