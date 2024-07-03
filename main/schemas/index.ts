@@ -84,13 +84,13 @@ export const SubmissionFormSchema = z.object({
   authors: z.array(z.any()).min(1, {
     message: "author is required",
   }),
-  contact: z.string().refine(validator.isMobilePhone),
+  contact: z.string().refine((arg) => validator.isMobilePhone(arg, "en-IN")),
   country: z.string().min(1, {
     message: "country is required",
   }),
   state: z.string().min(1, {
     message: "state is required",
   }),
-  submission: z.optional(z.array(z.any())),
+  submission: z.array(z.any()),
   comment: z.optional(z.string()),
 });

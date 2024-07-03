@@ -1,8 +1,9 @@
 "use client";
 
+import { getAllSubmission } from "@/actions/get-All-Submission";
 import { getConference } from "@/actions/get-conference";
 import { Warning } from "@/components/_components/alert";
-import { columns, Submissions } from "@/components/conference/table/columns";
+import { columns, Submission } from "@/components/conference/table/columns";
 import { DataTable } from "@/components/conference/table/data-table";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,128 +18,37 @@ import {
 import { Conference } from "@prisma/client";
 import { addDays } from "date-fns";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import React, { startTransition, useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
 
-const data = [
-  {
-    id: "728ed52f",
-    email: "m@example.com",
-    status: "pending",
-    date: new Date(),
-  },
-  {
-    id: "728ed52f",
-    email: "m@example.com",
-    status: "pending",
-    date: new Date(),
-  },
-  {
-    id: "728ed52f",
-    email: "m@example.com",
-    status: "pending",
-    date: new Date(),
-  },
-  {
-    id: "728ed52f",
-    email: "m@example.com",
-    status: "pending",
-    date: new Date(),
-  },
-  {
-    id: "728ed52f",
-    email: "m@example.com",
-    status: "pending",
-    date: new Date(),
-  },
-  {
-    id: "728ed52f",
-    email: "m@example.com",
-    status: "pending",
-    date: new Date(),
-  },
-  {
-    id: "728ed52f",
-    email: "m@example.com",
-    status: "pending",
-    date: new Date(),
-  },
-  {
-    id: "728ed52f",
-    email: "m@example.com",
-    status: "pending",
-    date: new Date(),
-  },
-  {
-    id: "728ed52f",
-    email: "m@example.com",
-    status: "pending",
-    date: new Date(),
-  },
-
-  {
-    id: "728ed52f",
-    email: "m@example.com",
-    status: "pending",
-    date: new Date(),
-  },
-  {
-    id: "728ed52f",
-    email: "m@example.com",
-    status: "pending",
-    date: new Date(),
-  },
-  {
-    id: "728ed52f",
-    email: "m@example.com",
-    status: "pending",
-    date: new Date(),
-  },
-  {
-    id: "728ed52f",
-    email: "m@example.com",
-    status: "pending",
-    date: new Date(),
-  },
-  {
-    id: "728ed52f",
-    email: "m@example.com",
-    status: "pending",
-    date: new Date(),
-  },
-  {
-    id: "728ed52f",
-    email: "m@example.com",
-    status: "pending",
-    date: new Date(),
-  },
-  {
-    id: "728ed52f",
-    email: "m@example.com",
-    status: "pending",
-    date: new Date(),
-  },
-  // ...
-];
-
 const Page = () => {
   const { confID } = useParams();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
   });
 
   const [currConference, setCurrConference] = useState<Conference | null>(null);
-
-  const [filterdata, setFilterData] = useState<Array<any>>(data);
+  const [allSubmission, setAllSubmission] = useState<Submission[]>([]);
+  const [filterdata, setFilterData] = useState<Array<Submission>>([]);
   const [currDomain, setCurrDomain] = useState<string>();
 
   useEffect(() => {
     if (date && date.from != undefined && date.to != undefined) {
-      const new_data = data.filter((x) => {
+      const new_data = allSubmission.filter((x) => {
         if (!date.from || !date.to) return false;
-        return new Date(x.date) >= date.from && new Date(x.date) <= date.to;
+        return (
+          new Date(x.createdAt) >= date.from && new Date(x.createdAt) <= date.to
+        );
       });
       setFilterData(new_data);
     }
@@ -151,6 +61,17 @@ const Page = () => {
       });
     });
   }, [confID]);
+
+  useEffect(() => {
+    if (currDomain && confID) {
+      startTransition(() => {
+        getAllSubmission(confID as string, currDomain).then((data) => {
+          setAllSubmission(data.data);
+          setFilterData(data.data);
+        });
+      });
+    }
+  }, [currDomain, confID]);
 
   return (
     <div className="container mx-auto space-y-2">
@@ -171,7 +92,9 @@ const Page = () => {
           </SelectContent>
         </Select>
         {currDomain && (
-          <Link href={`/client/conference/${confID}/create-submission`}>
+          <Link
+            href={`/client/conference/${confID}/create-submission?domain=${currDomain}`}
+          >
             <Button variant={"outline"} type="button">
               Create Submission
             </Button>
