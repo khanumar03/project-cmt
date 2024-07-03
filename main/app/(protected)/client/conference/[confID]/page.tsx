@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Conference } from "@prisma/client";
 import { addDays } from "date-fns";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import React, { startTransition, useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
@@ -170,9 +171,11 @@ const Page = () => {
           </SelectContent>
         </Select>
         {currDomain && (
-          <Button variant={"outline"} type="button">
-            Create Submission
-          </Button>
+          <Link href={`/client/conference/${confID}/create-submission`}>
+            <Button variant={"outline"} type="button">
+              Create Submission
+            </Button>
+          </Link>
         )}
       </div>
       <div className="w-full flex justify-center items-center">
