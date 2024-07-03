@@ -35,7 +35,12 @@ import { columns } from "@/components/conference/submission/columns";
 import validator from "validator";
 import { addAuthorWithEmail } from "@/actions/add-author";
 import toast, { ErrorIcon } from "react-hot-toast";
-import { MailCheckIcon, TriangleAlertIcon } from "lucide-react";
+import {
+  MailCheckIcon,
+  MailPlus,
+  TriangleAlertIcon,
+  UploadCloud,
+} from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Information } from "unitsnet-js";
 import axios from "axios";
@@ -154,6 +159,21 @@ const Page = () => {
       });
   };
 
+  useEffect(() => {
+    async function handle(e: BeforeUnloadEvent) {
+      e.preventDefault();
+      await axios.delete("http://localhost:3003/file/all", {
+        data: { files: filesMetaData },
+      });
+      return "";
+    }
+    window.addEventListener("beforeunload", handle);
+
+    return () => {
+      window.removeEventListener("beforeunload", handle);
+    };
+  }, [filesMetaData]);
+
   return (
     <Form {...form}>
       <form
@@ -233,7 +253,7 @@ const Page = () => {
                           type="button"
                           onClick={(e) => addAuthor(e)}
                         >
-                          Add
+                          <MailPlus size={23} />
                         </Button>
                       </div>
 
@@ -267,7 +287,7 @@ const Page = () => {
                 type="button"
                 onClick={(e) => uploadFile(e)}
               >
-                upload
+                <UploadCloud className="mt-1 text-sky-500" size={25} />
               </Button>
             </div>
           </div>

@@ -34,7 +34,7 @@ const FileCard = ({
             <p className="max-w-48 text-sm truncate ">{filename}</p>
             <span className="text-left">{extname}</span>
           </div>
-          <span className="text-[10px] font-semibold">{size}</span>
+          <span className="text-[10px] font-semibold">{size}MB</span>
         </div>
       </div>
       <div className="w-14">

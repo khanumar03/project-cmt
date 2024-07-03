@@ -45,7 +45,6 @@ app.get("/", (req, res) => {
 });
 
 app.post("/upload", upload.array("files"), (req, res) => {
-  console.log(req.files);
   return res.status(200).json({ metadata: req.files });
 });
 
@@ -65,6 +64,28 @@ app.delete("/delete", (req, res) => {
     }
   });
   return res.status(201).json({ success: "deleted successfully" });
+});
+
+app.delete("/file/all", (req, res) => {
+  const { files } = req.body;
+
+  files.forEach((file) => {
+    fs.unlink(file.path, (err) => {
+      if (err) {
+        return res.status(203).json({ error: "something went wrong!" });
+      }
+    });
+    const dirname = path.dirname(file.path);
+
+    fs.readdir(dirname, (err, files) => {
+      if (files.length == 0) {
+        fs.rmdir(dirname, { recursive: true, force: true }, (err) => {
+          if (err) console.log(err);
+        });
+      }
+    });
+  });
+  return res.status(200).json({ msg: "ok" });
 });
 
 app.get("/getfile", (req, res) => {
