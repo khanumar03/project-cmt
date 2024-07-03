@@ -1,3 +1,5 @@
+"use client";
+
 import { CountryList } from "@/components/conference/country-list";
 import { DatePicker } from "@/components/conference/date-picker";
 import { StateList } from "@/components/conference/state-list";
@@ -23,24 +25,47 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 import { currentUser } from "@/lib/auth";
 import { SubmissionFormSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { FormError } from "@/components/form-error";
 import { FormSuccess } from "@/components/form-success";
+import { DataTable } from "@/components/conference/submission/data-table";
+import { columns } from "@/components/conference/submission/columns";
+import validator from "validator";
+import { addAuthorWithEmail } from "@/actions/add-author";
+import toast, { ErrorIcon } from "react-hot-toast";
+import { MailCheckIcon, TriangleAlertIcon } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Information } from "unitsnet-js";
+import axios from "axios";
+import FileCard from "@/components/conference/submission/file-card";
+import { FileMetaData } from "@/lib/types";
+import path from "path";
 
 const Page = () => {
   const user = useCurrentUser();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
+  const [isEmail, setIsEmail] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
+  const [value, setValue] = useState<string>("");
+  const [files, setFiles] = useState<Array<File> | null>(null);
+  const [filesMetaData, setFilesMetaData] = useState<FileMetaData[]>([]);
 
   const form = useForm<z.infer<typeof SubmissionFormSchema>>({
     resolver: zodResolver(SubmissionFormSchema),
     defaultValues: {
       title: "",
       abstract: "",
-      email: [{ email: user?.email, name: user?.name }],
+      authors: [
+        {
+          email: user?.email,
+          firstname: user?.first_name,
+          lastname: user?.last_name,
+          org: user?.org,
+        },
+      ],
       contact: "",
       country: "",
       state: "",
@@ -48,85 +73,227 @@ const Page = () => {
       comment: "",
     },
   });
+
+  const addAuthor = (e: any) => {
+    e.preventDefault();
+    const check = validator.isEmail(value);
+    if (!check) {
+      setIsEmail("Enter a valid email");
+      return;
+    }
+    setIsEmail("");
+
+    if (authors.length >= 5) {
+      toast.success("Atmost 5 authors are allowed", {
+        duration: 2000,
+        position: "top-center",
+        icon: <TriangleAlertIcon className="text-red-600" size={24} />,
+        style: {
+          width: 300,
+        },
+      });
+      return;
+    }
+
+    const isExist = authors.some((author: any) => author.email == value);
+
+    if (isExist) {
+      toast.success("Already added", {
+        duration: 2000,
+        position: "top-center",
+        icon: <MailCheckIcon className="text-green-400" size={24} />,
+        style: {
+          width: 300,
+        },
+      });
+      return;
+    }
+
+    startTransition(() => {
+      addAuthorWithEmail(value).then((data) => {
+        if (data.error) {
+          toast.error(data.error, {
+            duration: 2000,
+            position: "top-center",
+            icon: <ErrorIcon color="red" className="w-24 h-24" />,
+          });
+        } else {
+          form.setValue("authors", [...authors, data.success]);
+        }
+      });
+    });
+  };
+
+  const authors = form.watch("authors");
+  const uploadFile = async (e: any) => {
+    e.preventDefault();
+    if (!files) return;
+
+    const data = new FormData();
+
+    files.forEach((file) => data.append("files", file));
+
+    const res = await axios.post("http://localhost:3003/upload", data);
+
+    setFilesMetaData([...filesMetaData, ...res.data.metadata]);
+
+    setFiles(null);
+    console.log("files uploaded");
+  };
+
+  const deleteFile = async (e: any, path: string) => {
+    await axios
+      .delete("http://localhost:3003/delete", { params: { path } })
+      .then((data) => {
+        if (data.data.success) {
+          const newData = filesMetaData.filter(
+            (metadata) => metadata.path != path
+          );
+          setFilesMetaData(newData);
+        }
+      });
+  };
+
   return (
     <Form {...form}>
       <form
-        className="max-w-[700px] mx-auto space-y-6"
+        className="flex flex-col justify-center mx-auto  max-w-[1000px]  space-y-4"
         // onSubmit={handleSubmit(onSubmit)}
       >
-        <div className="flex flex-col lg:flex-row lg:space-x-6 space-y-6 lg:space-y-0">
-          <div className="flex-1 space-y-4">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Title</FormLabel>
-                  <FormControl>
-                    <Input {...field} disabled={isPending} type="text" />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="abstract"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Abstract</FormLabel>
-                  <FormControl>
-                    <Textarea />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="email"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input type="text" />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          </div>
+        <FormField
+          control={form.control}
+          name="title"
+          render={({ field }) => (
+            <FormItem className="flex flex-col max-w-[400px]">
+              <FormLabel>Title</FormLabel>
+              <FormControl>
+                <Input {...field} disabled={isPending} type="text" />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="abstract"
+          render={({ field }) => (
+            <FormItem className="flex flex-col max-w-[400px]">
+              <FormLabel>Abstract</FormLabel>
+              <FormControl>
+                <Textarea {...field} className="min-h-40" />
+              </FormControl>
+            </FormItem>
+          )}
+        />
 
-          <div className="flex-1 space-y-4">
+        <FormField
+          control={form.control}
+          name="country"
+          render={({ field }) => (
+            <FormItem className="flex flex-col max-w-[400px]">
+              <FormLabel>Country</FormLabel>
+              <FormControl>
+                <Input {...field} type="text" />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="state"
+          render={({ field }) => (
+            <FormItem>
+              <FormItem className="flex flex-col max-w-[400px]">
+                <FormLabel>State</FormLabel>
+                <FormControl>
+                  <Input {...field} type="text" />
+                </FormControl>
+              </FormItem>
+            </FormItem>
+          )}
+        />
+
+        <div className="w-full space-y-4">
+          <DataTable columns={columns} data={authors} />
+          <div className="">
             <FormField
-              control={form.control}
-              name="country"
+              name="add"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Country</FormLabel>
+                <FormItem className="flex flex-col max-w-[400px]">
+                  <FormLabel>Add author with email</FormLabel>
                   <FormControl>
-                    <Input type="text" />
+                    <div className="flex flex-col space-y-1">
+                      <div className="flex space-x-2">
+                        <Input
+                          type="text"
+                          value={value}
+                          onChange={(e) => setValue(e.target.value)}
+                        />
+                        <Button
+                          variant={"outline"}
+                          type="button"
+                          onClick={(e) => addAuthor(e)}
+                        >
+                          Add
+                        </Button>
+                      </div>
+
+                      {isEmail && (
+                        <p className="text-destructive text-sm">{isEmail}</p>
+                      )}
+                    </div>
                   </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="state"
-              render={({ field }) => (
-                <FormItem>
-                  <FormItem className="flex flex-col">
-                    <FormLabel>State</FormLabel>
-                    <FormControl>
-                      <Input type="text" />
-                    </FormControl>
-                  </FormItem>
                 </FormItem>
               )}
             />
           </div>
         </div>
+
+        <div className="space-y-2 max-w-[400px]">
+          <div className="flex flex-col space-y-1">
+            <Label htmlFor="file">Files submission</Label>
+            <div className="flex space-x-2">
+              <Input
+                type="file"
+                name="file"
+                multiple
+                onChange={(e) => {
+                  if (e.target.files) {
+                    setFiles(Object.values(e.target.files));
+                  } else setFiles(null);
+                }}
+              />
+              <Button
+                variant={"outline"}
+                type="button"
+                onClick={(e) => uploadFile(e)}
+              >
+                upload
+              </Button>
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+          {filesMetaData.map((metadata: FileMetaData, idx: number) => {
+            const extname = path.extname(metadata.filename);
+            const filename = metadata.filename.split(extname)[0];
+            return (
+              <FileCard
+                key={idx}
+                filename={filename}
+                size={+new Information(metadata.size).Megabytes.toFixed(2)}
+                extname={extname}
+                path={metadata.path}
+                deletFile={deleteFile}
+              />
+            );
+          })}
+        </div>
+
+        <Button disabled={isPending} type="submit" className="w-full">
+          submit
+        </Button>
         <FormError message={error} />
         <FormSuccess message={success} />
-        <Button disabled={isPending} type="submit" className="w-full">
-          Create Conference
-        </Button>
       </form>
     </Form>
   );

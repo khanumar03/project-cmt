@@ -81,8 +81,8 @@ export const SubmissionFormSchema = z.object({
   abstract: z.string().min(1, {
     message: "Abstract is required",
   }),
-  email: z.array(z.any()).min(1, {
-    message: "Email is required",
+  authors: z.array(z.any()).min(1, {
+    message: "author is required",
   }),
   contact: z.string().refine(validator.isMobilePhone),
   country: z.string().min(1, {
