@@ -19,42 +19,73 @@ enum Role {
   CHAIR
 }
 
-model Conference {
-  id                     String       @id @default(auto()) @map("_id") @db.ObjectId
-  name                   String       @db.String
-  description            String?      @db.String
-  country                String       @db.String
-  state                  String       @db.String
-  startDate              DateTime     @db.Timestamp
-  endDate                DateTime     @db.Timestamp
-  paperSubmissionDueDate DateTime     @db.Timestamp
-  externalConfURL        String?      @db.String
-  domain                 String[]     @db.String
-  nos                    Int          @db.Int
-  submission             Submission[]
-  createdBy              String       @db.ObjectId
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  participantIDs String[]   @db.ObjectId
-  participants   User[]     @relation(fields: [participantIDs], references: [id])
-  roles          UserRole[]
+enum Status {
+  Pending
+  Accepted
+  Reject
 }
 
-model Submission {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  conferenceId String   @db.ObjectId
-  filePath     String   @db.String
-  fileType     String   @db.String
-  fromDomain   String   @db.String
-  createdAt    DateTime @default(now()) @db.Timestamp
-  updatedAt    DateTime @updatedAt @db.Timestamp
-
-  conference  Conference @relation(fields: [conferenceId], references: [id])
-  createdBy   User       @relation(fields: [createdById], references: [id])
-  createdById String     @db.ObjectId
+type FileType {
+  fieldname String @db.String
+  originalname String @db.String
+  encoding String @db.String
+  mimetype String @db.String
+  destination String @db.String
+  filename String @db.String
+  path String @db.String
+  size Int @db.Int
 }
+
+type AuthorsType {
+  email String @db.String
+  firstname String @db.String
+  lastname  String @db.String
+  org       String @db.String
+}
+
+  model Conference {
+    id                     String       @id @default(auto()) @map("_id") @db.ObjectId
+    name                   String       @db.String
+    description            String?      @db.String
+    country                String       @db.String
+    state                  String       @db.String
+    startDate              DateTime     @db.Timestamp
+    endDate                DateTime     @db.Timestamp
+    paperSubmissionDueDate DateTime     @db.Timestamp
+    externalConfURL        String?      @db.String
+    domain                 String[]     @db.String
+    nos                    Int          @db.Int
+    createdBy              String       @db.ObjectId
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    submission      Submission[]
+    participantIDs String[]   @db.ObjectId
+    participants   User[]     @relation(fields: [participantIDs], references: [id])
+    roles          UserRole[]
+  }
+
+  model Submission {
+    id           String   @id @default(auto()) @map("_id") @db.ObjectId
+    conferenceId String   @db.ObjectId
+    files        FileType[]
+    fromDomain   String   @db.String
+    title        String   @db.String
+    abstract     String   @db.String
+    authors      AuthorsType[]
+    country       String   @db.String
+    state         String   @db.String
+    comment       String?  @db.String
+    status        Status?  @default(Pending)        
+    currActiveMail  String  @db.String 
+    createdAt    DateTime @default(now()) @db.Timestamp
+    updatedAt    DateTime @updatedAt @db.Timestamp
+
+    conference  Conference @relation(fields: [conferenceId], references: [id])
+    createdBy   User       @relation(fields: [createdById], references: [id])
+    createdById String     @db.ObjectId
+  }
 
 model UserRole {
   id           String @id @default(auto()) @map("_id") @db.ObjectId

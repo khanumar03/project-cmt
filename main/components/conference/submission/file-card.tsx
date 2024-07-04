@@ -20,7 +20,7 @@ const FileCard = ({
   deletFile,
 }: {
   filename: string;
-  size: number;
+  size: string;
   extname: string;
   path: string;
   deletFile: (e: any, path: string) => void;
