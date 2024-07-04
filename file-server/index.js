@@ -111,10 +111,10 @@ app.post("/updatepath", (req, res) => {
           }
         );
       }
-      file.path = folderPath + `/${file.filename}`;
-      file.destination = folderPath;
-      result.push(file);
     });
+    file.path = folderPath + `/${file.filename}`;
+    file.destination = folderPath;
+    result.push(file);
   });
 
   return res.status(200).json({ result });
