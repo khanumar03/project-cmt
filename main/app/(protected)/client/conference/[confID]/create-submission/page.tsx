@@ -212,23 +212,23 @@ const Page = () => {
                 },
               }
             );
+            console.log(response.data.result);
+
             startTransition(() => {
               uploadFilesMetaData(
                 data.success.id,
                 response.data.result as FileType[]
-              ).then((ok) => {
-                if (ok.error) setError(ok.error);
-                else {
-                  toast.success(ok.success as string, {
-                    duration: 2000,
-                    position: "top-center",
-                    icon: <CircleCheckBigIcon color="green" size={23} />,
-                  });
-                  router.back();
-                }
+              );
+
+              toast.success("submission created successfully", {
+                duration: 2000,
+                position: "top-center",
+                icon: <CircleCheckBigIcon color="green" size={23} />,
               });
+              router.back();
             });
-          } else setError(data.error);
+            setError(data.error);
+          }
         });
     });
   };

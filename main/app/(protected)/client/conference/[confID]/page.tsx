@@ -1,123 +1,52 @@
 "use client";
 
-import { getAllSubmission } from "@/actions/get-All-Submission";
-import { getConference } from "@/actions/get-conference";
-import { Warning } from "@/components/_components/alert";
-import { columns, Submission } from "@/components/conference/table/columns";
-import { DataTable } from "@/components/conference/table/data-table";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Conference } from "@prisma/client";
-import { addDays } from "date-fns";
-import Link from "next/link";
-import {
-  useParams,
-  usePathname,
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
-import React, { startTransition, useEffect, useState } from "react";
-import { DateRange } from "react-day-picker";
+import { isAuthorized } from "@/actions/conference-authorize";
+import ConferencePage from "@/app/(protected)/_components/conference-page";
+import { useCurrentRole } from "@/hooks/use-current-role";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { Role } from "@prisma/client";
+import { ShieldBan } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const Page = () => {
   const { confID } = useParams();
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const { replace } = useRouter();
-  const [date, setDate] = React.useState<DateRange | undefined>({
-    from: undefined,
-    to: undefined,
-  });
-
-  const [currConference, setCurrConference] = useState<Conference | null>(null);
-  const [allSubmission, setAllSubmission] = useState<Submission[]>([]);
-  const [filterdata, setFilterData] = useState<Array<Submission>>([]);
-  const [currDomain, setCurrDomain] = useState<string>();
+  const user = useCurrentUser();
+  const role = useCurrentRole();
+  const { replace, back } = useRouter();
+  const [isTrue, setIsTrue] = useState(false);
 
   useEffect(() => {
-    if (date && date.from != undefined && date.to != undefined) {
-      const new_data = allSubmission.filter((x) => {
-        if (!date.from || !date.to) return false;
-        return (
-          new Date(x.createdAt) >= date.from && new Date(x.createdAt) <= date.to
-        );
-      });
-      setFilterData(new_data);
+    if (!confID || !user?.id) {
+      back();
+      return () => {};
     }
-  }, [date]);
+    let mounted = true;
 
-  useEffect(() => {
-    startTransition(() => {
-      getConference(confID as string).then((conference) => {
-        setCurrConference(conference.data);
-      });
-    });
-  }, [confID]);
-
-  useEffect(() => {
-    if (currDomain && confID) {
-      startTransition(() => {
-        getAllSubmission(confID as string, currDomain).then((data) => {
-          setAllSubmission(data.data);
-          setFilterData(data.data);
-        });
-      });
+    async function isAuthorizedRole() {
+      if (user && confID && mounted) {
+        const ok = await isAuthorized(user.id, confID as string, user?.role);
+        setIsTrue(ok);
+        if (!ok && mounted) {
+          toast.error("You are unauthorized to access this conference", {
+            duration: 2000,
+            position: "top-center",
+            icon: <ShieldBan color="red" size={30} />,
+          });
+          back();
+        }
+      }
     }
-  }, [currDomain, confID]);
 
-  return (
-    <div className="container mx-auto space-y-2">
-      <div className="w-full flex space-x-2">
-        <Select onValueChange={setCurrDomain}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="select domain" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              {currConference &&
-                currConference.domain.map((domain, idx) => (
-                  <SelectItem key={idx} value={domain}>
-                    {domain}
-                  </SelectItem>
-                ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-        {currDomain && (
-          <Link
-            href={`/client/conference/${confID}/create-submission?domain=${currDomain}`}
-          >
-            <Button variant={"outline"} type="button">
-              Create Submission
-            </Button>
-          </Link>
-        )}
-      </div>
-      <div className="w-full flex justify-center items-center">
-        {currDomain ? (
-          <DataTable
-            handledate={{ date, setDate }}
-            columns={columns}
-            data={filterdata}
-          />
-        ) : (
-          <Warning
-            className={"max-w-72 mt-10"}
-            title="No domain selected!"
-            description="select domain to work"
-          />
-        )}
-      </div>
-    </div>
-  );
+    isAuthorizedRole();
+
+    return () => {
+      mounted = false;
+    };
+  }, [role]);
+
+  return isTrue && <ConferencePage />;
 };
 
 export default Page;

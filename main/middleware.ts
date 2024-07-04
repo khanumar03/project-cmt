@@ -1,12 +1,14 @@
-import NextAuth from 'next-auth';
+import NextAuth from "next-auth";
 
-import authConfig from '@/auth.config';
+import authConfig from "@/auth.config";
 import {
   DEFAULT_LOGIN_REDIRECT,
   apiAuthPrefix,
   authRoutes,
   publicRoutes,
-} from '@/routes';
+} from "@/routes";
+import { useSession } from "next-auth/react";
+import { useCurrentUser } from "./hooks/use-current-user";
 
 const { auth } = NextAuth(authConfig);
 
@@ -47,5 +49,5 @@ export default auth((req) => {
 
 // Optionally, don't invoke Middleware on some paths
 export const config = {
-  matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
+  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
 };
