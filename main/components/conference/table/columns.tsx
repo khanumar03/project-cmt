@@ -1,29 +1,33 @@
 "use client";
-
+import { Status } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 
-export type Submissions = {
-  id: string;
-  email: string;
-  status: "pending" | "processing" | "success" | "failed";
-  date: Date;
+export type Submission = {
+  country: string;
+  status: Status | null;
+  currActiveMail: string;
+  createdAt: Date;
 };
 
-export const columns: ColumnDef<Submissions>[] = [
+export const columns: ColumnDef<Submission>[] = [
   {
-    accessorKey: "email",
+    accessorKey: "currActiveMail",
     header: "Email",
+  },
+  {
+    accessorKey: "country",
+    header: "Location",
   },
   {
     accessorKey: "status",
     header: "Status",
   },
   {
-    accessorKey: "date",
+    accessorKey: "createdAt",
     header: "Date",
     cell: ({ row }) => {
       const date = new Intl.DateTimeFormat("en-GB").format(
-        row.getValue("date")
+        row.getValue("createdAt")
       );
 
       return <span className="text-right font-medium">{date}</span>;

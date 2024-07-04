@@ -15,21 +15,13 @@ const storage = multer.diskStorage({
     }
 
     const folderPath = `./tempfile/${req.token}`;
-    fs.mkdirSync(folderPath, { recursive: true }); // Create folder if not exist
+    fs.mkdirSync(folderPath, { recursive: true });
     cb(null, folderPath);
   },
   filename: function (req, file, cb) {
     return cb(null, `${file.originalname}`);
   },
 });
-// const tempStorage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, "./temp");
-//   },
-//   filename: function (req, file, cb) {
-//     return cb(null, `${req.body}`);
-//   },
-// });
 
 const upload = multer({ storage });
 
@@ -58,7 +50,7 @@ app.delete("/delete", (req, res) => {
 
   fs.readdir(dirname, (err, files) => {
     if (files.length == 0) {
-      fs.rm(dirname, { recursive: true, force: true }, (err) => {
+      fs.rmdir(dirname, { recursive: true, force: true }, (err) => {
         if (err) console.log(err);
       });
     }
@@ -97,5 +89,41 @@ app.get("/getfile", (req, res) => {
     res.end(data, "binary");
   });
 });
+
+app.post("/updatepath", (req, res) => {
+  const { confID, domain, subID, files } = req.body.data;
+
+  const folderPath = `./uploads/${confID}/${domain}/${subID}`;
+  fs.mkdirSync(folderPath, { recursive: true });
+  const result = [];
+
+  files.forEach((file) => {
+    fs.rename(file.path, folderPath + `/${file.filename}`, (err) => {
+      if (err) console.log(err);
+    });
+    fs.readdir(path.dirname(file.path), (err, files) => {
+      if (files.length == 0) {
+        fs.rmdir(
+          path.dirname(file.path),
+          { recursive: true, force: true },
+          (err) => {
+            if (err) console.log(err);
+          }
+        );
+      }
+      file.path = folderPath + `/${file.filename}`;
+      file.destination = folderPath;
+      result.push(file);
+    });
+  });
+
+  return res.status(200).json({ result });
+});
+
+// if (fs.existsSync("./tempfile/sdsd")) {
+//   fs.rmdirSync("./tempfile/sdsd", { recursive: true });
+// } else {
+//   console.log(`Directory ./tempfile/sdsd" does not exist.`);
+// }
 
 app.listen(port, () => console.log(`Server Started`));

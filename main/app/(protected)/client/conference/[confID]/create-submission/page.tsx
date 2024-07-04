@@ -27,7 +27,7 @@ import { SubmissionFormSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { date, z } from "zod";
 import { FormError } from "@/components/form-error";
 import { FormSuccess } from "@/components/form-success";
 import { DataTable } from "@/components/conference/submission/data-table";
@@ -36,6 +36,7 @@ import validator from "validator";
 import { addAuthorWithEmail } from "@/actions/add-author";
 import toast, { ErrorIcon } from "react-hot-toast";
 import {
+  CircleCheckBigIcon,
   MailCheckIcon,
   MailPlus,
   TriangleAlertIcon,
@@ -47,16 +48,23 @@ import axios from "axios";
 import FileCard from "@/components/conference/submission/file-card";
 import { FileMetaData } from "@/lib/types";
 import path from "path";
+import { FileType } from "@prisma/client";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { createSubmission } from "@/actions/create-submission";
+import { uploadFilesMetaData } from "@/actions/upload-files-metadata";
 
 const Page = () => {
   const user = useCurrentUser();
+  const params = useSearchParams();
+  const { confID } = useParams();
+
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
   const [isEmail, setIsEmail] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [value, setValue] = useState<string>("");
   const [files, setFiles] = useState<Array<File> | null>(null);
-  const [filesMetaData, setFilesMetaData] = useState<FileMetaData[]>([]);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof SubmissionFormSchema>>({
     resolver: zodResolver(SubmissionFormSchema),
@@ -78,6 +86,8 @@ const Page = () => {
       comment: "",
     },
   });
+
+  const submission = form.watch("submission");
 
   const addAuthor = (e: any) => {
     e.preventDefault();
@@ -140,7 +150,7 @@ const Page = () => {
 
     const res = await axios.post("http://localhost:3003/upload", data);
 
-    setFilesMetaData([...filesMetaData, ...res.data.metadata]);
+    form.setValue("submission", [...submission, ...res.data.metadata]);
 
     setFiles(null);
     console.log("files uploaded");
@@ -151,10 +161,10 @@ const Page = () => {
       .delete("http://localhost:3003/delete", { params: { path } })
       .then((data) => {
         if (data.data.success) {
-          const newData = filesMetaData.filter(
+          const newData = submission.filter(
             (metadata) => metadata.path != path
           );
-          setFilesMetaData(newData);
+          form.setValue("submission", newData);
         }
       });
   };
@@ -162,9 +172,10 @@ const Page = () => {
   useEffect(() => {
     async function handle(e: BeforeUnloadEvent) {
       e.preventDefault();
-      await axios.delete("http://localhost:3003/file/all", {
-        data: { files: filesMetaData },
-      });
+      if (submission)
+        await axios.delete("http://localhost:3003/file/all", {
+          data: { files: submission },
+        });
       return "";
     }
     window.addEventListener("beforeunload", handle);
@@ -172,13 +183,61 @@ const Page = () => {
     return () => {
       window.removeEventListener("beforeunload", handle);
     };
-  }, [filesMetaData]);
+  }, [submission]);
+
+  const onSubmit = (values: z.infer<typeof SubmissionFormSchema>) => {
+    setError("");
+    setSuccess("");
+
+    startTransition(() => {
+      if (user?.id && (params.get("domain") as string) && (confID as string))
+        createSubmission(
+          values,
+          confID as string,
+          params.get("domain") as string,
+          user.id
+        ).then(async (data) => {
+          if (data.success) {
+            const response = await axios.post(
+              "http://localhost:3003/updatepath",
+              {
+                data: {
+                  confID,
+                  domain: params.get("domain") as string,
+                  subID: data.success.id,
+                  files: submission,
+                },
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              }
+            );
+            startTransition(() => {
+              uploadFilesMetaData(
+                data.success.id,
+                response.data.result as FileType[]
+              ).then((ok) => {
+                if (ok.error) setError(ok.error);
+                else {
+                  toast.success(ok.success as string, {
+                    duration: 2000,
+                    position: "top-center",
+                    icon: <CircleCheckBigIcon color="green" size={23} />,
+                  });
+                  router.back();
+                }
+              });
+            });
+          } else setError(data.error);
+        });
+    });
+  };
 
   return (
     <Form {...form}>
       <form
         className="flex flex-col justify-center mx-auto  max-w-[1000px]  space-y-4"
-        // onSubmit={handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit)}
       >
         <FormField
           control={form.control}
@@ -200,6 +259,31 @@ const Page = () => {
               <FormLabel>Abstract</FormLabel>
               <FormControl>
                 <Textarea {...field} className="min-h-40" />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="contact"
+          render={({ field }) => (
+            <FormItem className="flex flex-col max-w-[400px]">
+              <FormLabel>Contact No.</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  onKeyDown={(e) => {
+                    if (
+                      Number.isInteger(+e.key) ||
+                      (field.value.length == 0 && e.key == "+") ||
+                      e.key == "Backspace" ||
+                      e.key == "Tab"
+                    ) {
+                    } else e.preventDefault();
+                  }}
+                  disabled={isPending}
+                  type="text"
+                />
               </FormControl>
             </FormItem>
           )}
@@ -293,14 +377,22 @@ const Page = () => {
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-          {filesMetaData.map((metadata: FileMetaData, idx: number) => {
+          {submission.map((metadata: FileType, idx: number) => {
             const extname = path.extname(metadata.filename);
             const filename = metadata.filename.split(extname)[0];
+            let size: any = Math.round(
+              new Information(metadata.size).Megabytes
+            );
+            if (!size) {
+              size =
+                Math.round(new Information(metadata.size).Kilobits).toString() +
+                "KB";
+            } else size = size.toString() + "MB";
             return (
               <FileCard
                 key={idx}
                 filename={filename}
-                size={+new Information(metadata.size).Megabytes.toFixed(2)}
+                size={size}
                 extname={extname}
                 path={metadata.path}
                 deletFile={deleteFile}

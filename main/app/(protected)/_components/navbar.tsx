@@ -59,7 +59,6 @@ export function Navbar() {
           }
         });
       });
-    console.log(currRole);
   }, [currRole]);
   return (
     <div className="relative w-full h-14 bg-black mt-0   z-50 flex items-center justify-between px-10 py-2">
