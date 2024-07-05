@@ -32,8 +32,11 @@ import { Input } from "@/components/ui/input";
 import { DateRangePickerEnhanced } from "./date-picker-advance";
 import { DateRange } from "react-day-picker";
 import { addDays } from "date-fns";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 
 export function DataTable({ columns, data, handledate }: any) {
+  const { confID } = useParams();
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
 
@@ -119,10 +122,12 @@ export function DataTable({ columns, data, handledate }: any) {
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell className="p-3" key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      <Link href={`/client/conference/${confID}/submission`}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </Link>
                     </TableCell>
                   ))}
                 </TableRow>
