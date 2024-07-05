@@ -37,6 +37,7 @@ import { addAuthorWithEmail } from "@/actions/add-author";
 import toast, { ErrorIcon } from "react-hot-toast";
 import {
   CircleCheckBigIcon,
+  CircleX,
   MailCheckIcon,
   MailPlus,
   TriangleAlertIcon,
@@ -52,6 +53,7 @@ import { FileType } from "@prisma/client";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { createSubmission } from "@/actions/create-submission";
 import { uploadFilesMetaData } from "@/actions/upload-files-metadata";
+import { baseURL } from "@/lib/baseURL";
 
 const Page = () => {
   const user = useCurrentUser();
@@ -64,6 +66,7 @@ const Page = () => {
   const [success, setSuccess] = useState<string | undefined>("");
   const [value, setValue] = useState<string>("");
   const [files, setFiles] = useState<Array<File> | null>(null);
+  const [disabled, setDisabled] = useState<boolean>(false);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof SubmissionFormSchema>>({
@@ -142,95 +145,79 @@ const Page = () => {
   const authors = form.watch("authors");
   const uploadFile = async (e: any) => {
     e.preventDefault();
-    if (!files) return;
+    setDisabled(true);
+    if (!files || !confID || !user) return;
 
     const data = new FormData();
 
     files.forEach((file) => data.append("files", file));
 
-    const res = await axios.post("http://localhost:3003/upload", data);
+    const res = await baseURL({
+      method: "post",
+      url: `/upload?confID=${confID}&userID=${user?.id}`,
+      data,
+    });
 
-    form.setValue("submission", [...submission, ...res.data.metadata]);
+    if (res.status == 500) {
+      toast.error(res.data.msg, {
+        duration: 2000,
+        position: "top-center",
+        icon: <CircleX color="red" size={25} />,
+      });
+    } else {
+      form.setValue("submission", [...submission, ...res.data.files]);
+      console.log("files uploaded");
+    }
 
     setFiles(null);
-    console.log("files uploaded");
+
+    setDisabled(false);
   };
 
-  const deleteFile = async (e: any, path: string) => {
-    await axios
-      .delete("http://localhost:3003/delete", { params: { path } })
-      .then((data) => {
-        if (data.data.success) {
-          const newData = submission.filter(
-            (metadata) => metadata.path != path
-          );
-          form.setValue("submission", newData);
-        }
+  const deleteFile = async (e: any, file: FileType) => {
+    e.preventDefault();
+
+    const response = await baseURL({
+      method: "patch",
+      url: "/delete",
+      data: {
+        file,
+      },
+    });
+
+    if (response.status == 201) {
+      const newData = submission.filter(
+        (metadata) => metadata.path != file.path
+      );
+      form.setValue("submission", newData);
+    } else {
+      toast.error("something went wrong", {
+        duration: 2000,
+        position: "top-center",
+        icon: <CircleX color="red" size={25} />,
       });
+    }
   };
 
-  useEffect(() => {
-    async function handle(e: BeforeUnloadEvent) {
-      e.preventDefault();
-      if (submission)
-        await axios.delete("http://localhost:3003/file/all", {
-          data: { files: submission },
-        });
-      return "";
-    }
-    window.addEventListener("beforeunload", handle);
+  // useEffect(() => {
+  //   async function handle(e: BeforeUnloadEvent) {
+  //     e.preventDefault();
+  //     if (submission)
+  //       await axios.delete("http://localhost:3003/file/all", {
+  //         data: { files: submission },
+  //       });
+  //     return "";
+  //   }
+  //   window.addEventListener("beforeunload", handle);
 
-    return () => {
-      window.removeEventListener("beforeunload", handle);
-    };
-  }, [submission]);
+  //   return () => {
+  //     window.removeEventListener("beforeunload", handle);
+  //   };
+  // }, [submission]);
 
   const onSubmit = (values: z.infer<typeof SubmissionFormSchema>) => {
     setError("");
     setSuccess("");
-
-    startTransition(() => {
-      if (user?.id && (params.get("domain") as string) && (confID as string))
-        createSubmission(
-          values,
-          confID as string,
-          params.get("domain") as string,
-          user.id
-        ).then(async (data) => {
-          if (data.success) {
-            const response = await axios.post(
-              "http://localhost:3003/updatepath",
-              {
-                data: {
-                  confID,
-                  domain: params.get("domain") as string,
-                  subID: data.success.id,
-                  files: submission,
-                },
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              }
-            );
-            console.log(response.data.result);
-
-            startTransition(() => {
-              uploadFilesMetaData(
-                data.success.id,
-                response.data.result as FileType[]
-              );
-
-              toast.success("submission created successfully", {
-                duration: 2000,
-                position: "top-center",
-                icon: <CircleCheckBigIcon color="green" size={23} />,
-              });
-              router.back();
-            });
-            setError(data.error);
-          }
-        });
-    });
   };
 
   return (
@@ -357,6 +344,7 @@ const Page = () => {
             <Label htmlFor="file">Files submission</Label>
             <div className="flex space-x-2">
               <Input
+                disabled={disabled}
                 type="file"
                 name="file"
                 multiple
@@ -367,6 +355,7 @@ const Page = () => {
                 }}
               />
               <Button
+                disabled={disabled}
                 variant={"outline"}
                 type="button"
                 onClick={(e) => uploadFile(e)}
@@ -378,25 +367,8 @@ const Page = () => {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           {submission.map((metadata: FileType, idx: number) => {
-            const extname = path.extname(metadata.filename);
-            const filename = metadata.filename.split(extname)[0];
-            let size: any = Math.round(
-              new Information(metadata.size).Megabytes
-            );
-            if (!size) {
-              size =
-                Math.round(new Information(metadata.size).Kilobits).toString() +
-                "KB";
-            } else size = size.toString() + "MB";
             return (
-              <FileCard
-                key={idx}
-                filename={filename}
-                size={size}
-                extname={extname}
-                path={metadata.path}
-                deletFile={deleteFile}
-              />
+              <FileCard key={idx} file={metadata} deletFile={deleteFile} />
             );
           })}
         </div>

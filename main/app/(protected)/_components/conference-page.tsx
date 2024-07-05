@@ -65,16 +65,16 @@ const ConferencePage = () => {
     });
   }, [confID]);
 
-  useEffect(() => {
-    if (currDomain && confID) {
-      startTransition(() => {
-        getAllSubmission(confID as string, currDomain).then((data) => {
-          setAllSubmission(data.data);
-          setFilterData(data.data);
-        });
-      });
-    }
-  }, [currDomain, confID]);
+  // useEffect(() => {
+  //   if (currDomain && confID) {
+  //     startTransition(() => {
+  //       getAllSubmission(confID as string, currDomain).then((data) => {
+  //         setAllSubmission(data.data);
+  //         setFilterData(data.data);
+  //       });
+  //     });
+  //   }
+  // }, [currDomain, confID]);
 
   return (
     <div className="container mx-auto space-y-2">
