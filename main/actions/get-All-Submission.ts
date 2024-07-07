@@ -11,7 +11,7 @@ export const getAllSubmission = async (confId: string, domain: string) => {
       fromDomain: domain,
     },
     select: {
-      currActiveMail: true,
+      email: true,
       country: true,
       status: true,
       createdAt: true,

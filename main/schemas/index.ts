@@ -91,6 +91,5 @@ export const SubmissionFormSchema = z.object({
   state: z.string().min(1, {
     message: "state is required",
   }),
-  submission: z.array(z.any()),
   comment: z.optional(z.string()),
 });

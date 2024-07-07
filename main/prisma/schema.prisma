@@ -43,7 +43,7 @@ type AuthorsType {
   org       String @db.String
 }
 
-  model Conference {
+model Conference {
     id                     String       @id @default(auto()) @map("_id") @db.ObjectId
     name                   String       @db.String
     description            String?      @db.String
@@ -64,28 +64,38 @@ type AuthorsType {
     participantIDs String[]   @db.ObjectId
     participants   User[]     @relation(fields: [participantIDs], references: [id])
     roles          UserRole[]
-  }
+}
 
-  model Submission {
+model Submission {
     id           String   @id @default(auto()) @map("_id") @db.ObjectId
-    conferenceId String   @db.ObjectId
-    files        FileType[]
-    fromDomain   String   @db.String
+    fromDomain   String  @db.String
     title        String   @db.String
-    abstract     String   @db.String
+    abstract     String  @db.String
     authors      AuthorsType[]
-    country       String   @db.String
+    contact      String   @db.String
+    country       String  @db.String
     state         String   @db.String
-    comment       String?  @db.String
-    status        Status?  @default(Pending)        
-    currActiveMail  String  @db.String 
+    comment       String  @db.String
+    status        Status  @default(Pending)        
+    email         String  @db.String 
     createdAt    DateTime @default(now()) @db.Timestamp
     updatedAt    DateTime @updatedAt @db.Timestamp
-
+    files       Files[]   
     conference  Conference @relation(fields: [conferenceId], references: [id])
+    conferenceId String   @db.ObjectId
     createdBy   User       @relation(fields: [createdById], references: [id])
     createdById String     @db.ObjectId
-  }
+}
+
+model Files {
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  metadata     FileType
+  userID       String @db.ObjectId
+
+  submission    Submission @relation(fields: [submissionID], references: [id], onDelete: Cascade)
+  submissionID  String @db.ObjectId
+}
+
 
 model UserRole {
   id           String @id @default(auto()) @map("_id") @db.ObjectId
