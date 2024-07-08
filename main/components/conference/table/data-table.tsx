@@ -1,6 +1,16 @@
 "use client";
 
 import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+import {
   ColumnDef,
   ColumnFiltersState,
   flexRender,
@@ -29,13 +39,33 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  LoaderCircle,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { DateRangePickerEnhanced } from "./date-picker-advance";
 import { DateRange } from "react-day-picker";
 import { addDays } from "date-fns";
+import { FilterStatus } from "./filter-status";
+import FilterEmail from "./email-filter";
 
-export function DataTable({ columns, data, handledate }: any) {
+export function DataTable({
+  columns,
+  data,
+  handledate,
+  filterby,
+  filterEmail,
+  isLoading,
+  setIsLoading,
+  totalrow,
+  activeRowSet,
+  prev,
+  next,
+  onPage,
+}: any) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -66,14 +96,23 @@ export function DataTable({ columns, data, handledate }: any) {
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
-        <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
+        {filterby?.value === "email" && (
+          <FilterEmail
+            isLoading={isLoading}
+            value={filterEmail.filterEmail}
+            setValue={filterEmail.setFilterEmail}
+          />
+        )}
+        {filterby?.value === "date" && (
+          <DateRangePickerEnhanced
+            handledata={handledate}
+            showExternalPresets
+            numberOfMonths={1}
+          />
+        )}
+
+        {filterby?.value === "status" && <FilterStatus />}
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -144,7 +183,7 @@ export function DataTable({ columns, data, handledate }: any) {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  No data
                 </TableCell>
               </TableRow>
             )}
@@ -156,24 +195,55 @@ export function DataTable({ columns, data, handledate }: any) {
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
+      </div>
+      <div
+        className={`w-full flex justify-center space-x-2 ${
+          isLoading ? "pointer-events-none opacity-60" : ""
+        }`}
+      >
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <Button
+                type="button"
+                variant={"ghost"}
+                disabled={activeRowSet === 1}
+                onClick={() => prev()}
+                className="flex items-center"
+              >
+                <ChevronLeft size={18} />
+                Previous
+              </Button>
+            </PaginationItem>
+            {totalrow.map((_: any, idx: number) => (
+              <PaginationItem key={idx + 1}>
+                <PaginationLink
+                  isActive={activeRowSet == idx + 1}
+                  className="cursor-pointer"
+                  onClick={() => onPage(idx + 1)}
+                >
+                  {idx + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+
+            {/* <PaginationItem>
+              <PaginationEllipsis />
+            </PaginationItem> */}
+            <PaginationItem>
+              <Button
+                type="button"
+                variant={"ghost"}
+                disabled={activeRowSet === totalrow.length}
+                onClick={() => next()}
+                className="flex items-center"
+              >
+                next
+                <ChevronRight size={18} />
+              </Button>
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
     </div>
   );

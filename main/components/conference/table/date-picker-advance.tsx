@@ -21,7 +21,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Table } from "@tanstack/react-table";
-import { Submissions } from "./columns";
 
 interface DateRangePickerProps extends React.HTMLAttributes<HTMLDivElement> {
   showExternalPresets?: boolean;
@@ -40,11 +39,6 @@ export function DateRangePickerEnhanced({
   handledata,
   className,
 }: DateRangePickerProps) {
-  React.useEffect(() => {
-    if (handledata.date?.from && handledata.date?.to) {
-    }
-  }, [handledata.date]);
-
   const handlePresetSelect = (value: string) => {
     switch (value) {
       case "last7Days":
@@ -81,6 +75,12 @@ export function DateRangePickerEnhanced({
         handledata.setDate({
           from: new Date(new Date().getFullYear() - 1, 0, 1),
           to: new Date(new Date().getFullYear() - 1, 11, 31),
+        });
+        break;
+      case "reset":
+        handledata.setDate({
+          from: undefined,
+          to: undefined,
         });
         break;
       default:
@@ -125,6 +125,13 @@ export function DateRangePickerEnhanced({
                     onClick={() => handlePresetSelect("last7Days")}
                   >
                     <span className="font-bold underline">Presets</span>
+                  </div>
+                  <div
+                    role="button"
+                    className="text-sm text-muted-foreground hover:text-primary"
+                    onClick={() => handlePresetSelect("reset")}
+                  >
+                    reset
                   </div>
                   <div
                     role="button"
@@ -202,6 +209,14 @@ export function DateRangePickerEnhanced({
             <SelectValue placeholder="Select Range" />
           </SelectTrigger>
           <SelectContent position="popper">
+            <SelectItem
+              disabled={
+                handledata.date?.from && handledata.date?.to ? false : true
+              }
+              value="reset"
+            >
+              Reset
+            </SelectItem>
             <SelectItem value="last7Days">Last 7 Days</SelectItem>
             <SelectItem value="last30Days">Last 30 Days</SelectItem>
             <SelectItem value="monthToDate">Month to Date</SelectItem>

@@ -6,33 +6,6 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 import { Status } from "@prisma/client";
 import { CheckboxIcon } from "@radix-ui/react-icons";
 import { ColumnDef } from "@tanstack/react-table";
-type StatusI = {
-  value: string;
-  label: string;
-};
-
-const statuses: StatusI[] = [
-  {
-    value: "backlog",
-    label: "Backlog",
-  },
-  {
-    value: "todo",
-    label: "Todo",
-  },
-  {
-    value: "in progress",
-    label: "In Progress",
-  },
-  {
-    value: "done",
-    label: "Done",
-  },
-  {
-    value: "canceled",
-    label: "Canceled",
-  },
-];
 
 export type Submission = {
   email: string;

@@ -32,7 +32,7 @@ export const createSubmission = async (
           authors: authors,
           comment: comment || "",
           country: country,
-          currActiveMail: email,
+          email: email,
           fromDomain: domain,
           state: state,
           contact: contact,
