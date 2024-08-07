@@ -64,6 +64,7 @@ export const ConferenceFormSchema = z.object({
     .max(10, {
       message: "maximum 10 domain allowed",
     }),
+  view: z.array(z.string()).refine((value) => value.some((v) => v)),
   submission: z
     .number()
     .min(1, {

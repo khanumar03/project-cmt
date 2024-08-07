@@ -60,7 +60,6 @@ import { deleteSubmissionOnEvent } from "@/actions/delete-submission-on-event";
 const SubmissionPage = () => {
   const user = useCurrentUser();
   const params = useSearchParams();
-  const { confID } = useParams();
 
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
@@ -146,7 +145,8 @@ const SubmissionPage = () => {
   const uploadFile = async (e: any) => {
     e.preventDefault();
     setDisabled(true);
-    if (!files || !confID || !user) return;
+    const confId = params.get("conferenceId");
+    if (!files || !confId || !user) return;
 
     const data = new FormData();
 
@@ -154,7 +154,7 @@ const SubmissionPage = () => {
 
     const res = await baseURL({
       method: "post",
-      url: `/upload?confID=${confID}&userID=${user?.id}`,
+      url: `/upload?confID=${confId}&userID=${user?.id}`,
       data,
     });
 
@@ -216,14 +216,15 @@ const SubmissionPage = () => {
 
     startTransition(() => {
       const domain = params.get("domain");
-      if (!user?.id || !user.email || !domain || !confID) return;
+      const confId = params.get("conferenceId");
+      if (!user?.id || !user.email || !domain || !confId) return;
       createSubmission(
         values,
         filesMetaData,
         user.id,
         user.email,
         domain,
-        confID as string
+        confId as string
       ).then((ok) => {
         if (ok.success) {
           toast.success(ok.success, {
@@ -231,7 +232,7 @@ const SubmissionPage = () => {
             position: "top-center",
             icon: <CircleCheck color="green" size={25} />,
           });
-          router.replace(`/client/conference/${confID}`);
+          router.replace(`/client/conference/${confId}`);
         } else {
         }
       });

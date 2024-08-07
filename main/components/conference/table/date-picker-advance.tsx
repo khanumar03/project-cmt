@@ -39,46 +39,60 @@ export function DateRangePickerEnhanced({
   handledata,
   className,
 }: DateRangePickerProps) {
+  const [date, setDate] = React.useState<DateRange | undefined>({
+    from: undefined,
+    to: undefined,
+  });
+
+  React.useEffect(() => {
+    function Update() {
+      if (date && date.from && date.to) {
+        handledata.setDate(date);
+      } else handledata.setDate(undefined);
+    }
+    Update();
+  }, [date, handledata]);
+
   const handlePresetSelect = (value: string) => {
     switch (value) {
       case "last7Days":
-        handledata.setDate({
+        setDate({
           from: addDays(new Date(), -7),
           to: new Date(),
         });
         break;
       case "last30Days":
-        handledata.setDate({
+        setDate({
           from: addDays(new Date(), -30),
           to: new Date(),
         });
         break;
       case "monthToDate":
-        handledata.setDate({
+        setDate({
           from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
           to: new Date(),
         });
         break;
       case "yearToDate":
-        handledata.setDate({
+        setDate({
           from: new Date(new Date().getFullYear(), 0, 1),
           to: new Date(),
         });
         break;
       case "thisYear":
-        handledata.setDate({
+        setDate({
           from: new Date(new Date().getFullYear(), 0, 1),
           to: new Date(new Date().getFullYear(), 11, 31),
         });
         break;
       case "lastYear":
-        handledata.setDate({
+        setDate({
           from: new Date(new Date().getFullYear() - 1, 0, 1),
           to: new Date(new Date().getFullYear() - 1, 11, 31),
         });
         break;
       case "reset":
-        handledata.setDate({
+        setDate({
           from: undefined,
           to: undefined,
         });
@@ -96,35 +110,35 @@ export function DateRangePickerEnhanced({
             id="date"
             variant={"outline"}
             className={cn(
-              "w-[260px] justify-start text-left font-normal",
-              !handledata.date && "text-muted-foreground"
+              "min-w-[150px] justify-start text-left font-normal",
+              !date && "text-muted-foreground"
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {handledata.date?.from ? (
-              handledata.date.to ? (
+            {date?.from ? (
+              date.to ? (
                 <>
-                  {format(handledata.date.from, "LLL dd, y")} -{" "}
-                  {format(handledata.date.to, "LLL dd, y")}
+                  {format(date.from, "LLL dd, y")} -{" "}
+                  {format(date.to, "LLL dd, y")}
                 </>
               ) : (
-                format(handledata.date.from, "LLL dd, y")
+                format(date.from, "LLL dd, y")
               )
             ) : (
               <span>Pick a date</span>
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="end">
+        <PopoverContent className="w-auto ml-10 p-0" align="end">
           {showInternalPresets ? (
             <>
               <div className="flex">
-                <div className="justify-evenly p-2">
+                <div className="justify-evenly p-2 mt-1">
                   <div
                     className="text-muted-foreground"
                     onClick={() => handlePresetSelect("last7Days")}
                   >
-                    <span className="font-bold underline">Presets</span>
+                    <span className="font-bold">Presets</span>
                   </div>
                   <div
                     role="button"
@@ -179,9 +193,20 @@ export function DateRangePickerEnhanced({
                 <Calendar
                   initialFocus
                   mode="range"
-                  defaultMonth={handledata.date?.from}
-                  selected={handledata.date}
-                  onSelect={handledata.setDate}
+                  defaultMonth={date?.from}
+                  selected={date}
+                  onSelect={(prev) => {
+                    if (prev && prev.from && prev.to) {
+                      const offsetFrom =
+                        prev.from.getTimezoneOffset() * 60 * 1000;
+                      const offsetTo = prev.to.getTimezoneOffset() * 60 * 1000;
+
+                      setDate({
+                        from: new Date(prev.from.getTime() - offsetFrom),
+                        to: new Date(prev.to.getTime() - offsetTo),
+                      });
+                    } else setDate(prev);
+                  }}
                   numberOfMonths={numberOfMonths}
                 />
               </div>
@@ -190,9 +215,20 @@ export function DateRangePickerEnhanced({
             <Calendar
               initialFocus
               mode="range"
-              defaultMonth={handledata.date?.from}
-              selected={handledata.date}
-              onSelect={handledata.setDate}
+              defaultMonth={date?.from}
+              selected={date}
+              onSelect={(prev) => {
+                if (prev && prev.from && prev.to) {
+                  const offsetFrom = prev.from.getTimezoneOffset() * 60 * 1000;
+                  const offsetTo = prev.to.getTimezoneOffset() * 60 * 1000;
+                  console.log(new Date(prev.from.toISOString()));
+
+                  setDate({
+                    from: new Date(prev.from.getTime() - offsetFrom),
+                    to: new Date(prev.to.getTime() - offsetTo),
+                  });
+                } else setDate(prev);
+              }}
               numberOfMonths={numberOfMonths}
             />
           )}
@@ -201,7 +237,7 @@ export function DateRangePickerEnhanced({
       {showExternalPresets && (
         <Select
           onValueChange={(value) => {
-            handledata.setDate(undefined); // Reset range when a preset is selected
+            setDate(undefined); // Reset range when a preset is selected
             handlePresetSelect(value);
           }}
         >
@@ -210,9 +246,7 @@ export function DateRangePickerEnhanced({
           </SelectTrigger>
           <SelectContent position="popper">
             <SelectItem
-              disabled={
-                handledata.date?.from && handledata.date?.to ? false : true
-              }
+              disabled={date?.from && date?.to ? false : true}
               value="reset"
             >
               Reset

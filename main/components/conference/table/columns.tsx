@@ -14,6 +14,12 @@ export type Submission = {
   createdAt: Date;
 };
 
+const StatusT: { [key: string]: string } = {
+  Accepted: "bg-green-500",
+  Pending: "bg-yellow-600",
+  Reject: "bg-destructive",
+};
+
 export const columns: ColumnDef<Submission>[] = [
   {
     id: "select",
@@ -59,7 +65,9 @@ export const columns: ColumnDef<Submission>[] = [
       return (
         <Badge
           variant={"outline"}
-          className="bg-yellow-600 text-white font-bold"
+          className={`${
+            StatusT[row.getValue("status") as string]
+          } text-white font-bold`}
         >
           {row.getValue("status")}
         </Badge>

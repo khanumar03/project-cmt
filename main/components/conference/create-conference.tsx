@@ -25,13 +25,33 @@ import { StateList } from "./state-list";
 import { conference } from "@/actions/create-conference";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { CircleCheckBigIcon, Trash2Icon } from "lucide-react";
+import { MdOutlinePublic, MdOutlinePublicOff } from "react-icons/md";
+
+import {
+  CircleCheckBigIcon,
+  Globe,
+  GlobeLock,
+  PlusIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "../ui/hover-card";
+import { Checkbox } from "../ui/checkbox";
+
+const items = [
+  {
+    id: "public",
+    label: "Public",
+  },
+  {
+    id: "private",
+    label: "Private",
+  },
+] as const;
 
 export function CreateConference() {
   const router = useRouter();
@@ -130,187 +150,238 @@ export function CreateConference() {
   return (
     <Form {...form}>
       <form
-        className="max-w-[700px] mx-auto space-y-6"
+        className="max-w-[900px] mx-auto space-y-6"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div className="flex flex-col lg:flex-row lg:space-x-6 space-y-6 lg:space-y-0">
-          <div className="flex-1 space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Name of the Conference</FormLabel>
-                  <FormControl>
-                    <Input {...field} disabled={isPending} type="text" />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="confStartDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Conference Start Date</FormLabel>
-                  <FormControl>
-                    <DatePicker
-                      isDisabled={false}
-                      from={new Date()}
-                      handledata={setStartDate}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="confEndDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Conference End Date</FormLabel>
-                  <FormControl>
-                    <DatePicker
-                      isDisabled={startDate ? false : true}
-                      from={startDate}
-                      handledata={setEndDate}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="paperSubmissionDueDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Paper Submission Due Date</FormLabel>
-                  <FormControl>
-                    <DatePicker
-                      isDisabled={endDate ? false : true}
-                      from={startDate}
-                      to={endDate}
-                      handledata={setSubmissionDue}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="submission"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>How many submissions do you expect?</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      disabled={isPending}
-                      type="number"
-                      value={field.value}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Name of the Conference</FormLabel>
+              <FormControl>
+                <Input
+                  className="max-w-sm"
+                  {...field}
+                  disabled={isPending}
+                  type="text"
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="confStartDate"
+          render={({ field }) => (
+            <FormItem className="space-x-2">
+              <FormLabel>Conference Start Date</FormLabel>
+              <FormControl>
+                <DatePicker
+                  isDisabled={false}
+                  from={new Date()}
+                  handledata={setStartDate}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="confEndDate"
+          render={({ field }) => (
+            <FormItem className="space-x-2">
+              <FormLabel>Conference End Date</FormLabel>
+              <FormControl>
+                <DatePicker
+                  isDisabled={startDate ? false : true}
+                  from={startDate}
+                  handledata={setEndDate}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="paperSubmissionDueDate"
+          render={({ field }) => (
+            <FormItem className="space-x-2">
+              <FormLabel>Paper Submission Due Date</FormLabel>
+              <FormControl>
+                <DatePicker
+                  isDisabled={endDate ? false : true}
+                  from={startDate}
+                  to={endDate}
+                  handledata={setSubmissionDue}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="submission"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>How many submissions do you expect?</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  disabled={isPending}
+                  type="number"
+                  value={field.value}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  className="max-w-sm"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <div className="flex-1 space-y-4">
-            <FormField
-              control={control}
-              name="country"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Country</FormLabel>
-                  <FormControl>
-                    <CountryList
-                      setCountryValue={setCountryValue}
-                      data={country}
-                      handlestate={handlestate}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="state"
-              render={({ field }) => (
-                <FormItem>
-                  <FormItem className="flex flex-col">
-                    <FormLabel>State</FormLabel>
-                    <FormControl>
-                      <StateList setStateValue={setStateValue} data={state} />
-                    </FormControl>
-                  </FormItem>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="externalConfURL"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>External Conference URL</FormLabel>
-                  <FormControl>
-                    <Input {...field} disabled={isPending} type="url" />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="domain"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Domain</FormLabel>
-                  <FormItem className="flex space-x-2 justify-between items-center">
-                    <FormControl>
-                      <Input
-                        onChange={(e) => setDomainInput(e.target.value)}
-                        disabled={isPending}
-                        type="text"
-                        value={domainInput}
-                      />
-                    </FormControl>
-                    <Button type="button" onClick={addDomain}>
-                      add Domain
-                    </Button>
-                  </FormItem>
-                  <ul className="flex flex-col space-y-1">
-                    {domain &&
-                      domain.map((domain: string, idx: number) => (
-                        <li
-                          key={idx}
-                          className="w-full flex justify-between space-x-2 truncate items-center bg-white"
-                        >
-                          <HoverCard>
-                            <HoverCardTrigger className="max-w-72 truncate ...">
-                              {domain}
-                            </HoverCardTrigger>
-                            <HoverCardContent className="w-fit">
-                              {domain}
-                            </HoverCardContent>
-                          </HoverCard>
-                          <Button
-                            variant={"outline"}
-                            size={"sm"}
-                            onClick={() => deleteDomain(idx)}
-                            type="button"
-                          >
-                            <Trash2Icon size={20} />
-                          </Button>
-                        </li>
-                      ))}
-                  </ul>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </div>
+        <FormField
+          control={control}
+          name="country"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Country</FormLabel>
+              <FormControl>
+                <CountryList
+                  setCountryValue={setCountryValue}
+                  data={country}
+                  handlestate={handlestate}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="state"
+          render={({ field }) => (
+            <FormItem>
+              <FormItem className="flex flex-col">
+                <FormLabel>State</FormLabel>
+                <FormControl>
+                  <StateList setStateValue={setStateValue} data={state} />
+                </FormControl>
+              </FormItem>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="externalConfURL"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>External Conference URL</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  className="max-w-sm"
+                  disabled={isPending}
+                  type="url"
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="view"
+          render={() => (
+            <FormItem>
+              {items.map((item) => (
+                <FormField
+                  key={item.id}
+                  control={form.control}
+                  name="view"
+                  render={({ field }) => {
+                    return (
+                      <FormItem
+                        key={item.id}
+                        className="flex flex-row items-center space-x-3 space-y-0"
+                      >
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value?.includes(item.id)}
+                            onCheckedChange={(checked) => {
+                              field.onChange([item.id]);
+                            }}
+                          />
+                        </FormControl>
+
+                        <FormLabel className="flex space-x-2 items-center ">
+                          {item.id === "public" && (
+                            <MdOutlinePublic size={20} />
+                          )}
+                          {item.id === "private" && (
+                            <MdOutlinePublicOff size={20} />
+                          )}
+                          <span className="text-sm font-normal">
+                            {item.label}
+                          </span>
+                        </FormLabel>
+                      </FormItem>
+                    );
+                  }}
+                />
+              ))}
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="domain"
+          render={({ field }) => (
+            <FormItem className="flex flex-col w-full">
+              <FormLabel>Domain</FormLabel>
+              <FormItem>
+                <div className="flex space-x-2 items-center">
+                  <Input
+                    className="max-w-md"
+                    onChange={(e) => setDomainInput(e.target.value)}
+                    disabled={isPending}
+                    type="text"
+                    value={domainInput}
+                  />
+                  <Button type="button" onClick={addDomain}>
+                    <PlusIcon strokeWidth={3} size={20} />
+                  </Button>
+                </div>
+              </FormItem>
+              <ul className="flex flex-col space-y-1">
+                {domain &&
+                  domain.map((domain: string, idx: number) => (
+                    <li
+                      key={idx}
+                      className="max-w-72 flex justify-between space-x-2 truncate items-center bg-white"
+                    >
+                      <HoverCard>
+                        <HoverCardTrigger className="max-w-72 truncate ...">
+                          {domain}
+                        </HoverCardTrigger>
+                        <HoverCardContent className="w-fit">
+                          {domain}
+                        </HoverCardContent>
+                      </HoverCard>
+                      <Button
+                        variant={"outline"}
+                        size={"sm"}
+                        onClick={() => deleteDomain(idx)}
+                        type="button"
+                      >
+                        <Trash2Icon size={20} />
+                      </Button>
+                    </li>
+                  ))}
+              </ul>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormError message={error} />
         <FormSuccess message={success} />
         <Button disabled={isPending} type="submit" className="w-full">

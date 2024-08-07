@@ -37,23 +37,17 @@ const status: FilterStatusValue[] = [
   },
 ];
 
-export function FilterStatus() {
+export function FilterStatus({
+  value,
+  setValue,
+}: {
+  value: string;
+  setValue: React.Dispatch<React.SetStateAction<string>>;
+}) {
   const params = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
-
-  // React.useEffect(() => {
-  //   const p = new URLSearchParams(params);
-  //   if (value) {
-  //     p.set("status", value);
-  //   } else {
-  //     p.delete("status");
-  //   }
-
-  //   replace(`${pathname}?${p.toString()}`);
-  // }, [value]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
