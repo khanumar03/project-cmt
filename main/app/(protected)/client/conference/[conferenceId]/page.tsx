@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchSubmissionByFiltersOrAll } from "@/actions/fetch-submission-by-filter";
+import { fetchSubmissionsAction } from "@/actions/fetchSubmissionsAction";
 import { paginationQuery } from "@/actions/pagination-query";
 import { Warning } from "@/components/_components/alert";
 import { columns, Submission } from "@/components/conference/table/columns";
@@ -35,14 +35,13 @@ const Page = () => {
   const [totalrow, setTotalRow] = useState<Array<number>>([]);
   const [activePage, setActivePage] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [pageOps, setPageOps] = useState<string>("");
 
 
   useEffect(() => {
     startTransition(() => {
       if(conferenceId && currDomain) {
         setIsLoading(true)
-        fetchSubmissionByFiltersOrAll({
+        fetchSubmissionsAction({
           confId: conferenceId as string,
           domain: currDomain,
           date: date,
@@ -67,7 +66,7 @@ const Page = () => {
 
   useEffect(() => {
     startTransition(() => {
-      if(conferenceId && currDomain) {
+      if(conferenceId && currDomain && !isLoading) {
         paginationQuery({
           confId: conferenceId as string,
           domain: currDomain,
@@ -84,7 +83,7 @@ const Page = () => {
         })
       }
     })
-  },[activePage,pageOps])
+  },[activePage])
 
   const prev = () => {
     if (activePage - 1 <= 0) return;
