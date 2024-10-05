@@ -7,7 +7,16 @@ import { Status } from "@prisma/client";
 import { CheckboxIcon } from "@radix-ui/react-icons";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
-
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal } from "lucide-react";
 export type Submission = {
   id: string;
   email: string;
@@ -50,10 +59,14 @@ export const columns: ColumnDef<Submission>[] = [
     header: "Email",
     cell: ({ row }) => {
       return (
-        <Link href={`/client/submission?email=${row.getValue("email")}&subid=${row.original.id}`}>
-        <Button type="button" variant={"link"}>
-          {row.getValue("email")}
-        </Button>
+        <Link
+          href={`/client/submission?email=${row.getValue("email")}&subid=${
+            row.original.id
+          }`}
+        >
+          <Button type="button" variant={"link"}>
+            {row.getValue("email")}
+          </Button>
         </Link>
       );
     },
@@ -67,14 +80,41 @@ export const columns: ColumnDef<Submission>[] = [
     header: "Status",
     cell: ({ row }) => {
       return (
-        <Badge
-          variant={"outline"}
-          className={`${
-            StatusT[row.getValue("status") as string]
-          } text-white font-bold`}
-        >
-          {row.getValue("status")}
-        </Badge>
+        <div className="flex space-x-1 justify-center items-center">
+          <Badge
+            variant={"outline"}
+            className={`${
+              StatusT[row.getValue("status") as string]
+            } text-white font-bold`}
+          >
+            {row.getValue("status")}
+          </Badge>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                disabled={(row.getValue("status") as string) === "Accepted"}
+              >
+                Accept
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled={(row.getValue("status") as string) === "Reject"}
+              >
+                Reject
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled={(row.getValue("status") as string) === "Pending"}
+              >
+                Pending
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       );
     },
   },
