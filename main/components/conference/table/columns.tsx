@@ -6,8 +6,10 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 import { Status } from "@prisma/client";
 import { CheckboxIcon } from "@radix-ui/react-icons";
 import { ColumnDef } from "@tanstack/react-table";
+import Link from "next/link";
 
 export type Submission = {
+  id: string;
   email: string;
   country: string;
   status: Status;
@@ -48,9 +50,11 @@ export const columns: ColumnDef<Submission>[] = [
     header: "Email",
     cell: ({ row }) => {
       return (
+        <Link href={`/client/submission?email=${row.getValue("email")}&subid=${row.original.id}`}>
         <Button type="button" variant={"link"}>
           {row.getValue("email")}
         </Button>
+        </Link>
       );
     },
   },

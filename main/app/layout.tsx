@@ -4,6 +4,7 @@ import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import StoreProvider from "./StoreProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,7 +25,7 @@ export default async function RootLayout({
       <html lang="en">
         <body className={inter.className}>
           <Toaster position="top-center" />
-          {children}
+          <StoreProvider children={children} />
         </body>
       </html>
     </SessionProvider>

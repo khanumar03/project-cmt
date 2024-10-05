@@ -25,13 +25,14 @@ export const fetchSubmissionByFiltersOrAll = async ({
 
   try {
     const { query, count } = await db.$transaction(async (tx) => {
+      
       const count = await tx.submission.count({
         where: {
           AND: {
             conferenceId: confId,
             fromDomain: domain,
           },
-          email: email,
+          email: {contains: email},
           createdAt: {
             lte: date?.to?.toISOString(),
             gte: date?.from?.toISOString(),
@@ -46,7 +47,7 @@ export const fetchSubmissionByFiltersOrAll = async ({
             conferenceId: confId,
             fromDomain: domain,
           },
-          email: email,
+          email: { contains: email },
           createdAt: {
             lte: date?.to?.toISOString(),
             gte: date?.from?.toISOString(),
@@ -56,6 +57,7 @@ export const fetchSubmissionByFiltersOrAll = async ({
         skip: 0,
         take: 2,
         select: {
+          id: true,
           email: true,
           country: true,
           status: true,
@@ -65,6 +67,7 @@ export const fetchSubmissionByFiltersOrAll = async ({
 
       return { query: submission, count: count };
     });
+    console.log(query);
 
     return { success: { query, count } };
   } catch (error) {

@@ -1,5 +1,6 @@
 "use client";
 import { fetchSubmissionByFiltersOrAll } from "@/actions/fetch-submission-by-filter";
+import { fetchDomain } from "@/actions/fetchDomain";
 import FilterDataTable from "@/components/conference/table/filter-by";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { updateCurrDomain } from "@/lib/features/Slices";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { FilterValue } from "@/lib/types";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -20,43 +23,42 @@ interface LayoutProps {
 }
 
 const Layout = ({ children }: LayoutProps) => {
-  const { conferenceId, domain } = useParams();
-  const router = useRouter();
-  const [_domain, setDomain] = useState<string>("");
+  const { conferenceId } = useParams();
+  const { currDomain } = useAppSelector((state) => state.data);
+  const dispatch = useAppDispatch()
+  const [currDomains, setCurrDomains] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!domain || domain != _domain)
-      router.push(`/client/conference/${conferenceId}/${_domain}`);
-  }, [domain, _domain, conferenceId, router]);
-
-  useEffect(() => {
-    setDomain((domain as string) || "");
-  }, [domain]);
+    startTransition(() => {
+      fetchDomain(conferenceId as string).then((ok) => {
+        if (ok.success) setCurrDomains(ok.success);
+      });
+    });
+  }, [conferenceId]);
 
   return (
     <div className="container mx-auto space-y-2">
       <div className="w-full flex space-x-2">
-        <Select onValueChange={setDomain} value={_domain}>
+        <Select onValueChange={(value) => {
+          dispatch(updateCurrDomain(value))
+        }} value={currDomain}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="select domain" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem value="Ai">AI</SelectItem>
-              <SelectItem value="ML">ML</SelectItem>
-
-              {/* {currConference &&
-                currConference.domain.map((domain, idx) => (
+              {currDomains &&
+                currDomains.map((domain, idx) => (
                   <SelectItem key={idx} value={domain}>
                     {domain}
                   </SelectItem>
-                ))} */}
+                ))}
             </SelectGroup>
           </SelectContent>
         </Select>
-        {domain ? (
+        {currDomain ? (
           <Link
-            href={`/client/create-submission?domain=${domain}&conferenceId=${conferenceId}`}
+            href={`/client/create-submission?domain=${currDomain}&conferenceId=${conferenceId}`}
           >
             <Button variant={"outline"} type="button">
               Create Submission

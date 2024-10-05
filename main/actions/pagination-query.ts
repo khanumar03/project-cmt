@@ -38,6 +38,7 @@ export const paginationQuery = async ({
       skip: skip,
       take: take,
       select: {
+        id:true,
         email: true,
         country: true,
         status: true,
