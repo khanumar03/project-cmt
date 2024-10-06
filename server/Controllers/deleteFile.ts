@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import fs from "fs/promises";
 import path from "path";
-import { FileType } from "c:/D/project-cmt/main/node_modules/@prisma/client/default";
+import { FileType } from "D:/KJSCE_Project/project-cmt/main/node_modules/@prisma/client/default";
 
 export const deleteFile = async (req: Request, res: Response) => {
   const { path: _path, destination } = req.body.file as FileType;

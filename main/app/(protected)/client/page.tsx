@@ -1,4 +1,5 @@
 "use client";
+import Invite from "@/components/conference/invite";
 
 import { getAllConference } from "@/actions/get-All-conference";
 import ConferenceCard from "@/components/conference/card-conf";
@@ -11,12 +12,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { startTransition, useCallback, useEffect, useState } from "react";
 
 const ClientPage = () => {
-
-  return (
-      <div className="w-full h-full">
-        
-      </div>
-  );
+  return <div className="w-full h-full"></div>;
 };
 
 export default ClientPage;
