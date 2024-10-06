@@ -2,6 +2,7 @@
 
 import { getAllConference } from "@/actions/get-All-conference";
 import ConferenceCard from "@/components/conference/card-conf";
+import Invite from "@/components/conference/invite";
 import { Button } from "@/components/ui/button";
 import { UserInfo } from "@/components/user-info";
 import { useCurrentUser } from "@/hooks/use-current-user";
@@ -40,6 +41,9 @@ const ClientPage = () => {
             conferences.map((conference, idx) => (
               <ConferenceCard key={idx} data={conference} />
             ))}
+        </div>
+        <div>
+          <Invite />
         </div>
       </div>
     </div>

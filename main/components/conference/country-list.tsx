@@ -27,7 +27,7 @@ import { NextPage } from "next";
 
 type Props = {
   data: Array<ICountry>;
-  handlestate: (st: string | null) => void;
+  handlestate?: (st: string | null) => void;
   setCountryValue: React.Dispatch<React.SetStateAction<string | undefined>>;
 };
 
@@ -41,10 +41,10 @@ export const CountryList: NextPage<Props> = ({
 
   React.useEffect(() => {
     if (value) {
-      handlestate(value?.isoCode);
+      if (handlestate) handlestate(value?.isoCode);
       setCountryValue(value.name);
     } else {
-      handlestate(value);
+      if (handlestate) handlestate(value);
       setCountryValue(undefined);
     }
   }, [value]);
@@ -64,9 +64,9 @@ export const CountryList: NextPage<Props> = ({
       </PopoverTrigger>
       <PopoverContent className="w-[275px] p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." />
+          <CommandInput placeholder="Search country" />
           <CommandList>
-            <CommandEmpty>No framework found.</CommandEmpty>
+            <CommandEmpty>No country found</CommandEmpty>
             <ScrollArea className="h-72 w-100 rounded-md border z-50">
               <CommandGroup>
                 {data.map((c, i) => (
