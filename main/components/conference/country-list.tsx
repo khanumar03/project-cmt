@@ -27,7 +27,7 @@ import { NextPage } from "next";
 
 type Props = {
   data: Array<ICountry>;
-  handlestate: (st: string | null) => void;
+  handlestate?: (st: string | null) => void;
   setCountryValue: React.Dispatch<React.SetStateAction<string | undefined>>;
 };
 
@@ -41,10 +41,10 @@ export const CountryList: NextPage<Props> = ({
 
   React.useEffect(() => {
     if (value) {
-      handlestate(value?.isoCode);
+      if (handlestate) handlestate(value?.isoCode);
       setCountryValue(value.name);
     } else {
-      handlestate(value);
+      if (handlestate) handlestate(value);
       setCountryValue(undefined);
     }
   }, [value]);

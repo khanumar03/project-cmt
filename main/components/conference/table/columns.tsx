@@ -80,7 +80,7 @@ export const columns: ColumnDef<Submission>[] = [
     header: "Status",
     cell: ({ row }) => {
       return (
-        <div className="flex space-x-1 justify-center items-center">
+        <div className="flex space-x-1 justify-left items-center">
           <Badge
             variant={"outline"}
             className={`${
