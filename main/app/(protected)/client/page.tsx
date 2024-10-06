@@ -29,22 +29,8 @@ const ClientPage = () => {
 
   return (
     <div>
-      <div className="w-full space-x-3">
-        <Link href={"/client/create-conference"}>
-          <Button variant={"outline"}>create conference</Button>
-        </Link>
-        <Link href={"/client/join-conference"}>
-          <Button variant={"outline"}>Join conference</Button>
-        </Link>
-        <div className="grid grid-cols-4 gap-4 mt-6">
-          {conferences &&
-            conferences.map((conference, idx) => (
-              <ConferenceCard key={idx} data={conference} />
-            ))}
-        </div>
-        <div>
-          <Invite />
-        </div>
+      <div>
+        <Invite />
       </div>
     </div>
   );
