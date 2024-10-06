@@ -64,9 +64,9 @@ export const CountryList: NextPage<Props> = ({
       </PopoverTrigger>
       <PopoverContent className="w-[275px] p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." />
+          <CommandInput placeholder="Search country" />
           <CommandList>
-            <CommandEmpty>No framework found.</CommandEmpty>
+            <CommandEmpty>No country found</CommandEmpty>
             <ScrollArea className="h-72 w-100 rounded-md border z-50">
               <CommandGroup>
                 {data.map((c, i) => (

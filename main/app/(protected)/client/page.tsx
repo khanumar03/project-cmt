@@ -11,38 +11,11 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { startTransition, useCallback, useEffect, useState } from "react";
 
 const ClientPage = () => {
-  const user = useCurrentUser();
-
-  const [conferences, setConferences] = useState<Array<Conference> | null>(
-    null
-  );
-
-  useEffect(() => {
-    if (user)
-      startTransition(() => {
-        getAllConference(user.id, user.role).then((data) => {
-          setConferences(data);
-        });
-      });
-  }, [user]);
 
   return (
-    <div>
-      <div className="w-full space-x-3">
-        <Link href={"/client/create-conference"}>
-          <Button variant={"outline"}>create conference</Button>
-        </Link>
-        <Link href={"/client/join-conference"}>
-          <Button variant={"outline"}>Join conference</Button>
-        </Link>
-        <div className="grid grid-cols-4 gap-4 mt-6">
-          {conferences &&
-            conferences.map((conference, idx) => (
-              <ConferenceCard key={idx} data={conference} />
-            ))}
-        </div>
+      <div className="w-full h-full">
       </div>
-    </div>
+
   );
 };
 
