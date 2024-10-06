@@ -11,7 +11,6 @@ import {
   User,
   Lock,
   CircleUserRound,
-  Link,
   TriangleAlert,
   Plus,
 } from "lucide-react";
@@ -39,6 +38,8 @@ import { useSession } from "next-auth/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import { getAllConference } from "@/actions/get-All-conference";
+import Invite from "@/components/conference/invite";
+import Link from "next/link";
 
 export function Navbar() {
   const user = useCurrentUser();
@@ -78,18 +79,21 @@ export function Navbar() {
   return (
     <div className="w-full h-full flex flex-col space-y-2">
       <div className="w-full space-y-1">
+        <Link href="/client/create-conference">
         <Button
           variant={"ghost"}
           className="flex w-full items-center justify-start text-white"
         >
           <Plus className="mr-2" size={18} strokeWidth={3} color="grey" /> Create conference
         </Button>
-        <Button
+        </Link>
+        <Invite />
+        {/* <Button
           variant={"ghost"}
           className="flex w-full items-center justify-start text-white"
         >
           <Plus className="mr-2" size={18} strokeWidth={3} color="grey" /> Join conference
-        </Button>
+        </Button> */}
       </div>
       <Separator />
     </div>

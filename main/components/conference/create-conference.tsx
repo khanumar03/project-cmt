@@ -150,7 +150,7 @@ export function CreateConference() {
   return (
     <Form {...form}>
       <form
-        className="max-w-[900px] mx-auto space-y-6"
+        className="w-full space-y-6"
         onSubmit={handleSubmit(onSubmit)}
       >
         <FormField
@@ -284,50 +284,6 @@ export function CreateConference() {
                   type="url"
                 />
               </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="view"
-          render={() => (
-            <FormItem>
-              {items.map((item) => (
-                <FormField
-                  key={item.id}
-                  control={form.control}
-                  name="view"
-                  render={({ field }) => {
-                    return (
-                      <FormItem
-                        key={item.id}
-                        className="flex flex-row items-center space-x-3 space-y-0"
-                      >
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value?.includes(item.id)}
-                            onCheckedChange={(checked) => {
-                              field.onChange([item.id]);
-                            }}
-                          />
-                        </FormControl>
-
-                        <FormLabel className="flex space-x-2 items-center ">
-                          {item.id === "public" && (
-                            <MdOutlinePublic size={20} />
-                          )}
-                          {item.id === "private" && (
-                            <MdOutlinePublicOff size={20} />
-                          )}
-                          <span className="text-sm font-normal">
-                            {item.label}
-                          </span>
-                        </FormLabel>
-                      </FormItem>
-                    );
-                  }}
-                />
-              ))}
             </FormItem>
           )}
         />
