@@ -11,7 +11,7 @@ const Conference = () => {
     }
 
     const back = () => {
-        if(step > 0) setStep(step - 1);
+        if(step > 1) setStep(step - 1);
     }
 
     return (
@@ -27,8 +27,8 @@ const Conference = () => {
             { step == 2 && ( <Step2 /> ) }
 
             <div className='flex space-x-5'>
-                <Button variant={"outline"} onClick={back}>back</Button>
-                <Button variant={"outline"} onClick={next}>next</Button>
+                <Button variant={"outline"} disabled={step <= 1} onClick={back}>back</Button>
+                <Button variant={"outline"} disabled={step >= 2} onClick={next}>next</Button>
             </div>
         </div>
     )
