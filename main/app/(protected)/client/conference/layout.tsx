@@ -1,5 +1,4 @@
 "use client";
-import { fetchSubmissionByFiltersOrAll } from "@/actions/fetch-submission-by-filter";
 import { fetchDomain } from "@/actions/fetchDomain";
 import FilterDataTable from "@/components/conference/table/filter-by";
 import { Button } from "@/components/ui/button";

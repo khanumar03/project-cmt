@@ -5,10 +5,9 @@ import FilterEmail from "@/components/conference/table/email-filter";
 import { db } from "@/lib/db";
 import { FilterValue } from "@/lib/types";
 import { Status } from "@prisma/client";
-import { Flag } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
-export const fetchSubmissionByFiltersOrAll = async ({
+export const fetchSubmissionsAction = async ({
   confId,
   domain,
   date,
@@ -67,7 +66,6 @@ export const fetchSubmissionByFiltersOrAll = async ({
 
       return { query: submission, count: count };
     });
-    console.log(query);
 
     return { success: { query, count } };
   } catch (error) {

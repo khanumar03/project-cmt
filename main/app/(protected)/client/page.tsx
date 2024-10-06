@@ -12,27 +12,17 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { startTransition, useCallback, useEffect, useState } from "react";
 
 const ClientPage = () => {
-  const user = useCurrentUser();
-
-  const [conferences, setConferences] = useState<Array<Conference> | null>(
-    null
-  );
-
-  useEffect(() => {
-    if (user)
-      startTransition(() => {
-        getAllConference(user.id, user.role).then((data) => {
-          setConferences(data);
-        });
-      });
-  }, [user]);
 
   return (
+<<<<<<< HEAD
     <div>
       <div>
         <Invite />
+=======
+      <div className="w-full h-full">
+>>>>>>> a7a94cf7a2ecd5f7b9ddac81436cd1f3cd9d2012
       </div>
-    </div>
+
   );
 };
 
