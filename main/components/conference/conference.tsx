@@ -15,7 +15,7 @@ const Conference = () => {
     }
 
     return (
-        <div className='w-full h-full flex flex-col space-y-4'>
+        <div className='w-full flex flex-col space-y-2 justify-start '>
             <div className='flex w-full justify-between items-center'>
                 <div className='font-bold text-sm'>steps {step} of 2</div>
                 <div className='flex space-x-2'>
@@ -23,11 +23,13 @@ const Conference = () => {
                     <span className={`w-6 rounded-sm h-1 ${step == 2 ? "bg-emerald-400" : "bg-gray-300"}`}></span>                    
                 </div>
             </div>
+            <div className='w-full'>
             { step == 1 && ( <Step1 /> ) }
             { step == 2 && ( <Step2 /> ) }
-            <div className='flex space-x-5'>
-                <Button variant={"outline"} disabled={step <= 1} onClick={back}>back</Button>
-                <Button variant={"outline"} disabled={step >= 2} onClick={next}>next</Button>
+            </div>
+            <div className='flex space-x-5 justify-end items-center'>
+                <Button variant={"outline"} disabled={step <= 1} onClick={back}>Prev</Button>
+                <Button variant={"outline"} disabled={step >= 2} onClick={next}>Next</Button>
             </div>
         </div>
     )

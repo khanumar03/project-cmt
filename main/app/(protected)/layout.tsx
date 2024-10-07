@@ -4,6 +4,7 @@ import Link from "next/link";
 import { NextUIProvider } from "@nextui-org/react";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import Image from "next/image";
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;
@@ -12,16 +13,16 @@ interface ProtectedLayoutProps {
 const ProtectedLayout = ({ children }: ProtectedLayoutProps) => {
   return (
     <div className="h-full w-full flex py-5 px-2 space-x-2 bg-black">
-      <div className="w-2/12">
+      <div className="w-2/12 h-full">
         <Navbar />
       </div>
-      <ScrollArea className="w-5/6 h-full">
-      <div className="w-full h-full bg-white shadow-sm bg-clip-padding backdrop-filter  backdrop-blur bg-opacity-20 saturate-100 backdrop-contrast-100 rounded-sm">
+      <div className="w-5/6 overflow-hidden h-full bg-gray-900/50 backdrop-blur-lg backdrop-filter rounded-lg ring-2 ring-zinc-900 ">
         {children}
       </div>
-      </ScrollArea>
     </div>
   );
 };
+
+
 
 export default ProtectedLayout;
