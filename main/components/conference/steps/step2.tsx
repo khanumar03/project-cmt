@@ -27,10 +27,13 @@ import toast from "react-hot-toast";
 
 import {
   CircleCheckBigIcon,
+  Ghost,
   Globe,
   GlobeLock,
+  Plus,
   PlusIcon,
   Trash2Icon,
+  X,
 } from "lucide-react";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import {
@@ -39,6 +42,8 @@ import {
   HoverCardTrigger,
 } from "../../ui/hover-card";
 import { Checkbox } from "../../ui/checkbox";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Step2 = () => {
   const router = useRouter();
@@ -82,6 +87,8 @@ const Step2 = () => {
   const domain = watch("domain");
 
   const addDomain = () => {
+    console.log("Sds");
+    
     if (domainInput.length <= 0) return;
     setValue("domain", [...domain, domainInput]);
     setDomainInput("");
@@ -134,13 +141,41 @@ const Step2 = () => {
     });
   };
   return (
-    <div>
-      <h3 className="text-xl font-semibold mb-4 text-white pt-10 pl-10">
-        Basic Information
-      </h3>
+    <div className="h-full w-full space-y-3 mt-5 mb-5">
+      <h4 className="text-2xl font-semibold text-white">Add domain</h4>
 
-      <Form {...form}>
-        <form className=" gap-10 p-10" onSubmit={handleSubmit(onSubmit)}>
+      <div className="w-full flex space-x-2 justify-start">
+        <div className="min-w-64">
+          <Input disabled={isPending} onChange={(e) => setDomainInput(e.target.value)} value={domainInput} />
+        </div>
+        <Button
+          variant={"outline"}
+          className="flex justify-center items-center"
+          onClick={addDomain}
+        >
+          <Plus size={22} />
+        </Button>
+      </div>
+
+      <ScrollArea className="w-80">
+      <ul className="max-h-[500px] w-full flex space-y-2 flex-col">
+        {
+          domain.map((_domain: string, i: number) => (
+            <Button
+              variant={"ghost"}
+              onClick={() => deleteDomain(i)}
+              key={i}
+              className="max-w-80 cursor-pointer flex space-x-1 justify-start items-center text-white"
+            >
+              <X size={14} strokeWidth={3} color="gray" />
+              <span>{_domain}</span>
+            </Button>
+          ))}
+      </ul>
+      </ScrollArea>
+
+      {/* <Form {...form}>
+        <form className="w-full h-full gap-5" onSubmit={handleSubmit(onSubmit)}>
           <FormField
             control={control}
             name="domain"
@@ -166,7 +201,7 @@ const Step2 = () => {
                     domain.map((domain: string, idx: number) => (
                       <li
                         key={idx}
-                        className="max-w-72 flex justify-between space-x-2 truncate items-center bg-white"
+                        className="max-w-72 h-12 flex rounded-md pl-2 justify-between space-x-2 truncate items-center bg-white"
                       >
                         <HoverCard>
                           <HoverCardTrigger className="max-w-72 truncate ...">
@@ -181,6 +216,7 @@ const Step2 = () => {
                           size={"sm"}
                           onClick={() => deleteDomain(idx)}
                           type="button"
+                          className="mr-2"
                         >
                           <Trash2Icon size={20} />
                         </Button>
@@ -194,15 +230,19 @@ const Step2 = () => {
 
           <FormError message={error} />
           <FormSuccess message={success} />
+          <div className="w-full h-fit flex justify-center items-center">
           <Button
             disabled={isPending}
             type="submit"
-            className="w-full text-white"
+            variant={"outline"}
+            size={"lg"}
+            className="text-white"
           >
-            Create Conference
+            Create
           </Button>
+          </div>
         </form>
-      </Form>
+      </Form> */}
     </div>
   );
 };
