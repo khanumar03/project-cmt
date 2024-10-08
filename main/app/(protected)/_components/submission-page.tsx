@@ -1,8 +1,5 @@
 "use client";
 
-import { CountryList } from "@/components/conference/country-list";
-import { DatePicker } from "@/components/conference/date-picker";
-import { StateList } from "@/components/conference/state-list";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -10,16 +7,8 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { currentUser } from "@/lib/auth";
@@ -45,17 +34,11 @@ import {
   UploadCloud,
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import { Information } from "unitsnet-js";
-import axios from "axios";
 import FileCard from "@/components/conference/submission/file-card";
-import { FileMetaData } from "@/lib/types";
-import path from "path";
 import { FileType } from "@prisma/client";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createSubmission } from "@/actions/create-submission";
-import { uploadFilesMetaData } from "@/actions/upload-files-metadata";
 import { baseURL } from "@/lib/baseURL";
-import { deleteSubmissionOnEvent } from "@/actions/delete-submission-on-event";
 
 const SubmissionPage = () => {
   const user = useCurrentUser();

@@ -19,6 +19,17 @@ import {
   TriangleAlert,
   Plus,
   UserIcon,
+  CreditCard,
+  Keyboard,
+  Users,
+  UserPlus,
+  MessageSquare,
+  PlusCircle,
+  LifeBuoy,
+  Cloud,
+  LockKeyhole,
+  Trash2,
+  Link2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -32,6 +43,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuShortcut,
 } from "@/components/ui/dropdown-menu";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { ExitIcon } from "@radix-ui/react-icons";
@@ -46,6 +58,14 @@ import { Separator } from "@/components/ui/separator";
 import { getAllConference } from "@/actions/get-All-conference";
 import Invite from "@/components/conference/invite";
 import Link from "next/link";
+import {
+  DropdownMenuPortal,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+} from "@radix-ui/react-dropdown-menu";
+import { MdEmail } from "react-icons/md";
+import Usermenu from "@/components/ui/user-dropdown";
 
 export function Navbar() {
   const user = useCurrentUser();
@@ -99,15 +119,7 @@ export function Navbar() {
 
       <div className="absolute bottom-5 space-y-2 left-1 w-full">
         <Separator className="w-2/12" />
-        <Button
-          className="w-2/12 h-14 space-x-2 flex justify-start backdrop-blur-lg items-center ring-2 ring-zinc-900"
-          variant={"ghost"}
-        >
-          <UserIcon size={28} color="gray" />{" "}
-          <span className="text-sm font-semibold">
-            {user?.first_name} {user?.last_name}
-          </span>
-        </Button>
+        <Usermenu />
       </div>
     </div>
   );
