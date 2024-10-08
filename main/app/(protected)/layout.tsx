@@ -23,6 +23,4 @@ const ProtectedLayout = ({ children }: ProtectedLayoutProps) => {
   );
 };
 
-
-
 export default ProtectedLayout;
