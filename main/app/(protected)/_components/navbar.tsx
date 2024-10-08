@@ -1,6 +1,11 @@
 "use client";
 
-import React, { startTransition, useCallback, useEffect, useState } from "react";
+import React, {
+  startTransition,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 // import { Button } from "./button";
 // import { HeaderDropDown } from "./header-dropdown";
 import { Input } from "@/components/ui/input";
@@ -13,6 +18,7 @@ import {
   CircleUserRound,
   TriangleAlert,
   Plus,
+  UserIcon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -67,7 +73,6 @@ export function Navbar() {
   //     });
   // }, [currRole]);
 
-
   // useEffect(() => {
   //   if (user)
   //     startTransition(() => {
@@ -77,25 +82,33 @@ export function Navbar() {
   //     });
   // }, [user]);
   return (
-    <div className="w-full h-full flex flex-col space-y-2">
+    <div className="w-full h-full flex flex-col items-stretch space-y-2">
       <div className="w-full space-y-1">
         <Link href="/client/create-conference">
-        <Button
-          variant={"ghost"}
-          className="flex w-full items-center justify-start text-white"
-        >
-          <Plus className="mr-2" size={18} strokeWidth={3} color="grey" /> Create conference
-        </Button>
+          <Button
+            variant={"ghost"}
+            className="flex w-full items-center justify-start text-white"
+          >
+            <Plus className="mr-2" size={18} strokeWidth={3} color="grey" />{" "}
+            Create conference
+          </Button>
         </Link>
         <Invite />
-        {/* <Button
-          variant={"ghost"}
-          className="flex w-full items-center justify-start text-white"
-        >
-          <Plus className="mr-2" size={18} strokeWidth={3} color="grey" /> Join conference
-        </Button> */}
+        <Separator />
       </div>
-      <Separator />
+
+      <div className="absolute bottom-5 space-y-2 left-1 w-full">
+        <Separator className="w-2/12" />
+        <Button
+          className="w-2/12 h-14 space-x-2 flex justify-start backdrop-blur-lg items-center ring-2 ring-zinc-900"
+          variant={"ghost"}
+        >
+          <UserIcon size={28} color="gray" />{" "}
+          <span className="text-sm font-semibold">
+            {user?.first_name} {user?.last_name}
+          </span>
+        </Button>
+      </div>
     </div>
   );
 }
