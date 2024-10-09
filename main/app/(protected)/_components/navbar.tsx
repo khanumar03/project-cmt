@@ -65,7 +65,7 @@ import {
   DropdownMenuSubTrigger,
 } from "@radix-ui/react-dropdown-menu";
 import { MdEmail } from "react-icons/md";
-import Usermenu from "@/components/ui/user-dropdown";
+import Usermenu from "@/components/conference/user-dropdown";
 
 export function Navbar() {
   const user = useCurrentUser();
